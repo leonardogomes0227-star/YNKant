@@ -47,7 +47,7 @@ O formato salvo é versionado (`DATA_VERSION` em `src/store/migrations.ts`). Par
 
 ## Publicar na Vercel
 
-1. Suba o repositório no GitHub.
+1. Suba o repositório no GitHub (a pasta `.github/workflows/pages.yml` também publica no GitHub Pages: ative em *Settings › Pages › Source: GitHub Actions*).
 2. Na Vercel: **Add New › Project**, importe o repositório. O preset **Vite** é detectado sozinho (build `npm run build`, saída `dist`). Nenhuma variável de ambiente é necessária.
 3. **Deploy.** Abra o site no celular e use “Adicionar à tela inicial” (ou o botão *Instalar* em Ajustes) para instalar o PWA.
 

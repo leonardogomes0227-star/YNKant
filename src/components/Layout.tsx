@@ -1,6 +1,7 @@
 import { useEffect, type ReactNode } from 'react'
 import { MoreHorizontal, Moon, Plus, Search, Sun } from 'lucide-react'
 import { MOBILE_MAIN, NAV, SETTINGS_NAV, type NavItem } from './nav'
+import { NavLink } from './NavLink'
 import { Modal } from './ui'
 import { useRoute } from '../lib/useRoute'
 import { modKey } from '../lib/platform'
@@ -12,7 +13,7 @@ import { useUI } from '../store/ui'
 function Logo() {
   return (
     <div className="flex items-center gap-2.5">
-      <img src="/icon.svg" alt="" width={28} height={28} className="rounded-lg" />
+      <img src={`${import.meta.env.BASE_URL}icon.svg`} alt="" width={28} height={28} className="rounded-lg" />
       <span className="silver-text font-display text-xl font-medium tracking-tight">Meu Dia</span>
     </div>
   )
@@ -37,16 +38,16 @@ function ThemeButton({ className = '' }: { className?: string }) {
 function SideLink({ item, active }: { item: NavItem; active: boolean }) {
   const Icon = item.icon
   return (
-    <a
-      href={`#/${item.id}`}
-      aria-current={active ? 'page' : undefined}
+    <NavLink
+      to={item.id}
+      current={active}
       className={`flex min-h-10 items-center gap-3 rounded-lg px-3 text-[14.5px] font-medium transition-colors ${
         active ? 'bg-surface-2 text-ink' : 'text-muted hover:bg-surface-2/60 hover:text-ink'
       }`}
     >
       <Icon size={18} className={active ? 'text-accent' : ''} aria-hidden />
       {item.label}
-    </a>
+    </NavLink>
   )
 }
 
@@ -93,16 +94,19 @@ function Sidebar({ route }: { route: string }) {
 function MobileTop() {
   const { setSearchOpen, setCaptureOpen } = useUI()
   return (
-    <div className="sticky top-0 z-30 flex items-center justify-between border-b border-line bg-bg/90 px-4 py-2 pt-[max(8px,env(safe-area-inset-top))] backdrop-blur md:hidden">
+    <div className="sticky top-0 z-30 flex items-center justify-between border-b border-line bg-bg/95 px-4 py-1.5 pt-[max(6px,env(safe-area-inset-top))] backdrop-blur md:hidden">
       <Logo />
-      <div className="flex items-center">
+      <div className="flex items-center gap-1">
         <button className="icon-btn" onClick={() => setSearchOpen(true)} aria-label="Buscar">
-          <Search size={19} />
+          <Search size={20} />
         </button>
-        <button className="icon-btn" onClick={() => setCaptureOpen(true)} aria-label="Captura rápida">
-          <Plus size={20} />
+        <button
+          className="flex h-10 items-center gap-1.5 rounded-xl bg-accent px-3.5 text-sm font-bold text-accent-fg"
+          onClick={() => setCaptureOpen(true)}
+          aria-label="Captura rápida: anotar na caixa de entrada"
+        >
+          <Plus size={18} strokeWidth={2.5} aria-hidden /> Anotar
         </button>
-        <ThemeButton />
       </div>
     </div>
   )
@@ -117,46 +121,45 @@ function BottomNav({ route }: { route: string }) {
   useEffect(() => setMoreOpen(false), [route, setMoreOpen])
 
   const cls = (active: boolean) =>
-    `flex min-h-14 flex-1 flex-col items-center justify-center gap-0.5 text-[11px] font-semibold transition-colors ${
-      active ? 'text-accent' : 'text-muted'
+    `relative flex min-h-[60px] flex-1 flex-col items-center justify-center gap-1 text-xs font-semibold transition-colors ${
+      active ? 'text-accent' : 'text-muted active:text-ink'
     }`
+  const bar = (active: boolean) =>
+    active && <span className="absolute inset-x-5 top-0 h-0.5 rounded-b bg-accent" aria-hidden />
 
   return (
     <>
       <nav
         aria-label="Principal"
-        className="fixed inset-x-0 bottom-0 z-30 flex border-t border-line bg-bg/95 pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden"
+        className="fixed inset-x-0 bottom-0 z-30 flex border-t border-line bg-bg pb-[env(safe-area-inset-bottom)] md:hidden"
       >
         {main.map((n) => (
-          <a
-            key={n.id}
-            href={`#/${n.id}`}
-            aria-current={route === n.id ? 'page' : undefined}
-            className={cls(route === n.id)}
-          >
-            <n.icon size={21} aria-hidden />
+          <NavLink key={n.id} to={n.id} current={route === n.id} className={cls(route === n.id)}>
+            {bar(route === n.id)}
+            <n.icon size={23} aria-hidden />
             {n.label}
-          </a>
+          </NavLink>
         ))}
         <button className={cls(moreActive)} onClick={() => setMoreOpen(true)} aria-haspopup="dialog">
-          <MoreHorizontal size={21} aria-hidden />
+          {bar(moreActive)}
+          <MoreHorizontal size={23} aria-hidden />
           Mais
         </button>
       </nav>
       <Modal open={moreOpen} onClose={() => setMoreOpen(false)} title="Mais">
         <div className="grid grid-cols-1 gap-1">
           {more.map((n) => (
-            <a
+            <NavLink
               key={n.id}
-              href={`#/${n.id}`}
-              aria-current={route === n.id ? 'page' : undefined}
-              className={`flex min-h-12 items-center gap-3 rounded-xl px-3 font-medium ${
-                route === n.id ? 'bg-surface-2 text-accent' : 'hover:bg-surface-2'
+              to={n.id}
+              current={route === n.id}
+              className={`flex min-h-14 items-center gap-3 rounded-xl px-3 text-base font-medium ${
+                route === n.id ? 'bg-surface-2 text-accent' : 'active:bg-surface-2'
               }`}
             >
-              <n.icon size={20} aria-hidden />
+              <n.icon size={22} aria-hidden />
               {n.label}
-            </a>
+            </NavLink>
           ))}
         </div>
       </Modal>
@@ -183,7 +186,7 @@ export function Layout({ children }: { children: ReactNode }) {
       <main
         id="conteudo"
         tabIndex={-1}
-        className="mx-auto w-full max-w-5xl px-4 pb-[calc(88px+env(safe-area-inset-bottom))] pt-6 outline-none sm:px-6 md:ml-60 md:w-[calc(100%-15rem)] md:max-w-none md:px-10 md:pb-16 md:pt-10"
+        className="mx-auto w-full max-w-5xl px-4 pb-[calc(92px+env(safe-area-inset-bottom))] pt-6 outline-none sm:px-6 md:ml-60 md:w-[calc(100%-15rem)] md:max-w-none md:px-10 md:pb-16 md:pt-10"
       >
         <div key={route} className="page-enter mx-auto max-w-4xl">
           {children}

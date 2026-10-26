@@ -42,7 +42,7 @@ export function askNotificationPermission() {
 export function notify(title: string, body: string) {
   if ('Notification' in window && Notification.permission === 'granted') {
     try {
-      new Notification(title, { body, icon: '/icons/icon-192.png' })
+      new Notification(title, { body, icon: `${import.meta.env.BASE_URL}icons/icon-192.png` })
     } catch {
       /* alguns navegadores móveis exigem service worker */
     }

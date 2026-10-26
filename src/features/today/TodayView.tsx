@@ -1,5 +1,6 @@
 import { useMemo, useRef, useState } from 'react'
 import { CalendarClock, CheckSquare, Flame, Plus, Sparkles, Timer } from 'lucide-react'
+import { NavLink } from '../../components/NavLink'
 import { EmptyState, ProgressBar, SectionTitle } from '../../components/ui'
 import { formatDuration, formatLong, greeting, nowMinutes, quoteOfDay, todayKey, weekStartKey, shiftKey } from '../../lib/dates'
 import { blocksForDate, currentBlock, nextBlock } from '../../lib/routine'
@@ -25,14 +26,14 @@ function Stat({
   to: Parameters<typeof go>[0]
 }) {
   return (
-    <a href={`#/${to}`} className="card metal block p-4 transition-colors hover:border-line-strong">
+    <NavLink to={to} className="card metal block p-4 transition-colors hover:border-line-strong">
       <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted">
         <Icon size={14} className="text-accent" aria-hidden />
         {label}
       </div>
       <div className="mt-2 truncate font-display text-2xl tabular">{value}</div>
       {detail && <div className="mt-0.5 truncate text-xs text-muted">{detail}</div>}
-    </a>
+    </NavLink>
   )
 }
 
@@ -153,7 +154,7 @@ export function TodayView() {
 
       <div className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-2">
         <section aria-label="Tarefas de hoje">
-          <SectionTitle aside={<a href="#/tarefas" className="text-sm text-accent hover:underline">Ver todas</a>}>Tarefas de hoje</SectionTitle>
+          <SectionTitle aside={<NavLink to="tarefas" className="text-sm text-accent hover:underline">Ver todas</NavLink>}>Tarefas de hoje</SectionTitle>
           {overdue.length > 0 && (
             <div className="mb-3">
               <h3 className="mb-1 px-2 font-sans text-xs font-semibold uppercase tracking-wider text-danger">Atrasadas</h3>
@@ -178,7 +179,7 @@ export function TodayView() {
         </section>
 
         <section aria-label="Hábitos de hoje">
-          <SectionTitle aside={<a href="#/habitos" className="text-sm text-accent hover:underline">Ver todos</a>}>Hábitos</SectionTitle>
+          <SectionTitle aside={<NavLink to="habitos" className="text-sm text-accent hover:underline">Ver todos</NavLink>}>Hábitos</SectionTitle>
           {todayHabits.length === 0 ? (
             <EmptyState icon={Flame} title="Nenhum hábito para hoje">
               Crie um hábito em Hábitos e escolha os dias da semana em que ele vale.

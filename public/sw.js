@@ -2,9 +2,12 @@
  * - Instalação: guarda o shell do app (HTML + JS/CSS referenciados nele).
  * - Páginas: rede primeiro, cache como reserva (assim atualizações chegam sozinhas).
  * - Demais arquivos (inclusive Google Fonts): do cache, atualizando em segundo plano.
+ * Os caminhos são relativos ao escopo, então funciona na raiz ou em subpasta.
  * Para forçar a atualização do cache, mude CACHE. */
-const CACHE = 'meu-dia-v1'
-const SHELL = ['/', '/manifest.webmanifest', '/icon.svg', '/icons/icon-192.png', '/icons/icon-512.png']
+const CACHE = 'meu-dia-v2'
+const ROOT = self.registration.scope
+const abs = (p) => new URL(p, ROOT).href
+const SHELL = ['./', 'manifest.webmanifest', 'icon.svg', 'icons/icon-192.png', 'icons/icon-512.png'].map(abs)
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
@@ -12,8 +15,8 @@ self.addEventListener('install', (event) => {
       const cache = await caches.open(CACHE)
       let assets = []
       try {
-        const html = await (await fetch('/', { cache: 'reload' })).text()
-        assets = [...html.matchAll(/(?:src|href)="(\/[^"#?]+)"/g)].map((m) => m[1])
+        const html = await (await fetch(ROOT, { cache: 'reload' })).text()
+        assets = [...html.matchAll(/(?:src|href)="(\.?\/?assets\/[^"#?]+)"/g)].map((m) => abs(m[1]))
       } catch {
         /* sem rede na instalação: o cache é preenchido aos poucos */
       }
@@ -47,10 +50,10 @@ self.addEventListener('fetch', (event) => {
         const cache = await caches.open(CACHE)
         try {
           const fresh = await fetch(req)
-          cache.put('/', fresh.clone())
+          if (fresh.ok) cache.put(ROOT, fresh.clone())
           return fresh
         } catch {
-          return (await cache.match('/')) || Response.error()
+          return (await cache.match(ROOT)) || Response.error()
         }
       })(),
     )

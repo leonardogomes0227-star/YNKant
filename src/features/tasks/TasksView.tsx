@@ -118,19 +118,19 @@ export function TasksView() {
         ))}
       </div>
 
-      <div className="mb-4 grid grid-cols-1 gap-2 sm:grid-cols-[minmax(0,1fr)_auto_auto]">
-        <div className="relative">
+      <div className="mb-4 grid grid-cols-2 gap-2 sm:grid-cols-[minmax(0,1fr)_auto_auto]">
+        <div className="relative col-span-2 sm:col-span-1">
           <Search size={16} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted" aria-hidden />
           <input className="input pl-9" type="search" placeholder="Buscar nas tarefas" aria-label="Buscar nas tarefas" value={q} onChange={(e) => setQ(e.target.value)} />
         </div>
         <select className="input sm:w-44" aria-label="Filtrar por categoria" value={cat} onChange={(e) => setCat(e.target.value)}>
-          <option value="">Todas as categorias</option>
+          <option value="">Categoria: todas</option>
           {categories.map((c) => (
             <option key={c} value={c}>{c}</option>
           ))}
         </select>
         <select className="input sm:w-40" aria-label="Filtrar por prioridade" value={prio} onChange={(e) => setPrio(e.target.value as Priority | '')}>
-          <option value="">Qualquer prioridade</option>
+          <option value="">Prioridade: todas</option>
           {(['high', 'medium', 'low'] as Priority[]).map((p) => (
             <option key={p} value={p}>{PRIORITY_LABEL[p]}</option>
           ))}

@@ -4,12 +4,21 @@ import type { RouteId, Task } from '../types'
 /** `id: 'new'` abre o editor para criar um item novo. */
 export type OpenTarget = { kind: 'task' | 'note' | 'goal'; id: string; defaults?: Partial<Task> } | null
 
+export const ROUTES: RouteId[] = ['hoje', 'tarefas', 'rotina', 'habitos', 'foco', 'notas', 'metas', 'revisao', 'ajustes']
+
+export function parseRoute(hash: string): RouteId {
+  const id = hash.replace(/^#\/?/, '').split(/[/?]/)[0] as RouteId
+  return ROUTES.includes(id) ? id : 'hoje'
+}
+
 interface Toast {
   id: number
   text: string
 }
 
 interface UI {
+  /** Aba atual. Fica no app (a URL é só um complemento), então funciona mesmo se o navegador bloquear o #. */
+  route: RouteId
   searchOpen: boolean
   captureOpen: boolean
   moreOpen: boolean
@@ -27,6 +36,7 @@ interface UI {
 let toastSeq = 0
 
 export const useUI = create<UI>()((set) => ({
+  route: parseRoute(typeof location === 'undefined' ? '' : location.hash),
   searchOpen: false,
   captureOpen: false,
   moreOpen: false,
@@ -44,13 +54,19 @@ export const useUI = create<UI>()((set) => ({
   dismissToast: (id) => set((s) => ({ toasts: s.toasts.filter((t) => t.id !== id) })),
 }))
 
-export const ROUTES: RouteId[] = ['hoje', 'tarefas', 'rotina', 'habitos', 'foco', 'notas', 'metas', 'revisao', 'ajustes']
-
-export function parseRoute(hash: string): RouteId {
-  const id = hash.replace(/^#\/?/, '').split(/[/?]/)[0] as RouteId
-  return ROUTES.includes(id) ? id : 'hoje'
+/** Troca de aba: atualiza o app primeiro e a URL depois (se o navegador permitir). */
+export function go(route: RouteId) {
+  useUI.setState({ route })
+  try {
+    if (location.hash !== `#/${route}`) history.pushState(null, '', `#/${route}`)
+  } catch {
+    /* navegador/visualizador sem acesso à URL: a aba já mudou no app */
+  }
+  window.scrollTo(0, 0)
 }
 
-export function go(route: RouteId) {
-  if (location.hash !== `#/${route}`) location.hash = `/${route}`
+if (typeof window !== 'undefined') {
+  const sync = () => useUI.setState({ route: parseRoute(location.hash) })
+  window.addEventListener('hashchange', sync)
+  window.addEventListener('popstate', sync)
 }
