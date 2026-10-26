@@ -1,5 +1,6 @@
 import { useEffect, type ComponentType } from 'react'
 import { Layout } from './components/Layout'
+import { LoginScreen } from './components/LoginScreen'
 import { QuickCaptureDialog } from './components/QuickCapture'
 import { SearchDialog } from './components/SearchDialog'
 import { Toasts } from './components/ui'
@@ -11,6 +12,7 @@ import { HabitsView } from './features/habits/HabitsView'
 import { SettingsView } from './features/settings/SettingsView'
 import { useRoute } from './lib/useRoute'
 import { useThemeEffect } from './lib/useTheme'
+import { useCloud } from './store/cloud'
 import { useUI } from './store/ui'
 import type { RouteId } from './types'
 
@@ -46,6 +48,10 @@ export default function App() {
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
   }, [setSearchOpen, setCaptureOpen])
+
+  const cloud = useCloud((s) => s.status)
+  if (cloud === 'checking') return <div className="grid min-h-dvh place-items-center text-muted">Carregando…</div>
+  if (cloud === 'signedOut') return <LoginScreen />
 
   const View = VIEWS[route]
   return (

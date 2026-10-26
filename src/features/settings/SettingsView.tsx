@@ -4,6 +4,7 @@ import { ConfirmDialog, PageHeader, SectionTitle } from '../../components/ui'
 import { dataCounts, downloadBackup, parseBackup } from '../../lib/backup'
 import { modKey } from '../../lib/platform'
 import { useInstall } from '../../lib/useInstall'
+import { signOut, syncNow, useCloud } from '../../store/cloud'
 import { emptyData } from '../../store/defaults'
 import { DATA_VERSION } from '../../store/migrations'
 import { pickData, useStore } from '../../store/useStore'
@@ -28,6 +29,9 @@ export function SettingsView() {
   const replaceAll = useStore((s) => s.replaceAll)
   const toast = useUI((s) => s.toast)
   const install = useInstall()
+  const cloud = useCloud()
+  const [leaving, setLeaving] = useState(false)
+  const [leaveError, setLeaveError] = useState('')
   const fileRef = useRef<HTMLInputElement>(null)
   const [incoming, setIncoming] = useState<AppData | null>(null)
   const [error, setError] = useState('')
@@ -47,6 +51,19 @@ export function SettingsView() {
   return (
     <>
       <PageHeader title="Ajustes" subtitle="Aparência, backup e dados." />
+
+      {cloud.status === 'ready' && (
+        <section className="card mb-8 px-5" aria-label="Conta">
+          <Row
+            title="Conta"
+            desc={`${cloud.email ?? ''} · ${{ idle: 'conectado', saving: 'salvando na nuvem…', saved: 'tudo salvo na nuvem', offline: 'sem conexão — salvo só neste aparelho por enquanto' }[cloud.sync]}`}
+          >
+            <button className="btn" onClick={() => void syncNow().then(() => toast('Sincronizado.'))}>Sincronizar agora</button>
+            <button className="btn" onClick={() => setLeaving(true)}>Sair</button>
+          </Row>
+          {leaveError && <p role="alert" className="pb-4 text-sm text-danger">{leaveError}</p>}
+        </section>
+      )}
 
       <section className="card px-5" aria-label="Geral">
         <Row title="Seu nome" desc="Usado na saudação da tela Hoje (opcional).">
@@ -103,6 +120,19 @@ export function SettingsView() {
         <p className="mt-4 text-xs text-muted">Meu Dia · formato de dados v{DATA_VERSION} · tudo fica salvo apenas neste navegador.</p>
       </section>
 
+      <ConfirmDialog
+        open={leaving}
+        title="Sair da conta?"
+        message="Seus dados ficam salvos na nuvem e voltam quando você entrar de novo. Eles serão removidos só deste aparelho."
+        confirmLabel="Sair"
+        onCancel={() => setLeaving(false)}
+        onConfirm={() => {
+          void signOut().then((err) => {
+            setLeaving(false)
+            setLeaveError(err ?? '')
+          })
+        }}
+      />
       <ConfirmDialog
         open={!!incoming}
         title="Substituir os dados atuais?"

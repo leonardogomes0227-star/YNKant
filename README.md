@@ -4,6 +4,19 @@ Organizador pessoal simples para o dia a dia, com o essencial: **Hoje**, **Taref
 
 **Stack:** Vite + React + TypeScript + Tailwind CSS 4, Zustand (persistência em `localStorage`), lucide-react, date-fns (pt-BR), Vitest.
 
+## Salvar na nuvem (Supabase)
+
+Sem configuração, os dados ficam só no navegador. Para guardá-los na nuvem e usar no celular e no computador:
+
+1. Crie um projeto grátis em supabase.com.
+2. **SQL Editor › New query**: cole o conteúdo de `supabase/schema.sql` e clique em **Run**.
+3. **Authentication › Providers › Email**: para uso pessoal, desligue **Confirm email** (assim a conta funciona na hora).
+4. **Project Settings › API**: copie a **Project URL** e a chave **anon public**.
+5. Para rodar localmente, copie `.env.example` para `.env.local` e cole os dois valores.
+6. Para o site publicado no GitHub: **Settings › Secrets and variables › Actions › Variables** e crie `VITE_SUPABASE_URL` e `VITE_SUPABASE_ANON_KEY`. Na Vercel, crie as mesmas duas em *Environment Variables*.
+
+Com isso o app pede e-mail e senha, salva automaticamente (cerca de 1 segundo depois de cada mudança) e atualiza ao voltar para a aba. Offline, continua funcionando e envia quando a internet volta. A chave *anon* é pública por desenho; quem protege os dados é a regra de acesso do `schema.sql` (cada conta só vê os próprios dados).
+
 ## Como rodar
 
 ```bash
