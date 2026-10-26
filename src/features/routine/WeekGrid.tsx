@@ -103,7 +103,7 @@ export function WeekGrid({
       </div>
 
       {/* lista (celular) */}
-      <div className="grid gap-3 md:hidden">
+      <div className="grid grid-cols-1 gap-3 md:hidden">
         {days.map((d, i) => {
           const done = routineLog[d] ?? []
           return (
@@ -114,7 +114,7 @@ export function WeekGrid({
               {perDay[i].length === 0 ? (
                 <p className="text-sm text-muted">Sem blocos.</p>
               ) : (
-                <ul className="grid gap-1">
+                <ul className="grid grid-cols-1 gap-1">
                   {perDay[i].map((b) => (
                     <li key={b.id}>
                       <button onClick={() => onOpenBlock(b)} className="flex min-h-10 w-full items-center gap-3 rounded-lg px-2 text-left hover:bg-surface-2">

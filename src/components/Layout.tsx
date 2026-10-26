@@ -144,7 +144,7 @@ function BottomNav({ route }: { route: string }) {
         </button>
       </nav>
       <Modal open={moreOpen} onClose={() => setMoreOpen(false)} title="Mais">
-        <div className="grid gap-1">
+        <div className="grid grid-cols-1 gap-1">
           {more.map((n) => (
             <a
               key={n.id}

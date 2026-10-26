@@ -22,7 +22,7 @@ export function JournalPanel() {
     .slice(0, 10)
 
   return (
-    <div className="grid gap-8 lg:grid-cols-[1fr_260px]">
+    <div className="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_260px]">
       <section aria-label="Diário do dia" className="card metal p-5">
         <div className="mb-5 flex flex-wrap items-center justify-between gap-2">
           <h2 className="text-xl">{isToday ? 'Hoje' : formatLong(fromKey(shown))}</h2>
@@ -33,7 +33,7 @@ export function JournalPanel() {
           </div>
         </div>
 
-        <div className="grid gap-5">
+        <div className="grid grid-cols-1 gap-5">
           <div>
             <span className="label" id="mood-l">Humor</span>
             <div className="flex flex-wrap gap-2" role="radiogroup" aria-labelledby="mood-l">
@@ -65,7 +65,7 @@ export function JournalPanel() {
 
           <fieldset className="m-0 border-0 p-0">
             <legend className="label">Três coisas boas</legend>
-            <div className="grid gap-2">
+            <div className="grid grid-cols-1 gap-2">
               {[0, 1, 2].map((i) => (
                 <input
                   key={i}
@@ -95,7 +95,7 @@ export function JournalPanel() {
         {recent.length === 0 ? (
           <p className="text-sm text-muted">Quando você registrar um dia, ele aparece aqui para consulta rápida.</p>
         ) : (
-          <ul className="grid gap-1">
+          <ul className="grid grid-cols-1 gap-1">
             {recent.map(([k, e]) => {
               const Icon = e.mood ? MOODS[e.mood - 1].icon : null
               return (

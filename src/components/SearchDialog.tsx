@@ -54,7 +54,8 @@ function SearchBody({ onPick }: { onPick: (h: SearchHit) => void }) {
         <input
           ref={inputRef}
           className="input pl-10"
-          type="search"
+          type="text"
+          role="searchbox"
           placeholder="Buscar tarefas, notas e metas…"
           aria-label="Buscar"
           value={q}
@@ -64,7 +65,7 @@ function SearchBody({ onPick }: { onPick: (h: SearchHit) => void }) {
           }}
         />
       </div>
-      <ul className="mt-3 grid gap-1" role="listbox" aria-label="Resultados">
+      <ul className="mt-3 grid grid-cols-1 gap-1" role="listbox" aria-label="Resultados">
         {hits.map((h, i) => {
           const Icon = ICON[h.kind]
           return (

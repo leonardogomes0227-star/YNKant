@@ -96,7 +96,7 @@ export function FocusView() {
         </section>
       )}
 
-      <div className="grid gap-8 lg:grid-cols-[1fr_340px]">
+      <div className="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_340px]">
         <section className="card metal p-5 sm:p-8" aria-label="Timer">
           <div className="seg mb-6 flex w-full justify-center" role="group" aria-label="Tipo de ciclo">
             {MODES.map((m) => (
@@ -202,15 +202,15 @@ export function FocusView() {
             Inicie um ciclo de foco acima. Quando ele terminar, a sessão aparece aqui com o tempo e a tarefa vinculada.
           </EmptyState>
         ) : (
-          <ul className="grid gap-0.5">
+          <ul className="grid grid-cols-1 gap-0.5">
             {recent.map((s) => {
               const t = taskOf(s.taskId)
               return (
-                <li key={s.id} className="flex items-center gap-3 rounded-xl px-3 py-2 hover:bg-surface-2/60">
-                  <span className="tabular w-24 shrink-0 text-sm text-muted">{s.date === today ? 'Hoje' : s.date === shiftKey(today, -1) ? 'Ontem' : formatBR(s.date)}</span>
-                  <span className="tabular w-16 shrink-0 font-semibold">{formatDuration(s.seconds)}</span>
+                <li key={s.id} className="flex items-center gap-2 rounded-xl px-2 py-2 sm:gap-3 sm:px-3 hover:bg-surface-2/60">
+                  <span className="tabular w-[76px] shrink-0 text-sm text-muted sm:w-24">{s.date === today ? 'Hoje' : s.date === shiftKey(today, -1) ? 'Ontem' : formatBR(s.date)}</span>
+                  <span className="tabular w-14 shrink-0 font-semibold sm:w-16">{formatDuration(s.seconds)}</span>
                   <span className="min-w-0 flex-1 truncate text-sm text-muted">{t ? t.title : 'Sem tarefa vinculada'}</span>
-                  {s.sample && <span className="chip">Exemplo</span>}
+                  {s.sample && <span className="chip hidden sm:inline-flex">Exemplo</span>}
                   <button className="icon-btn icon-btn-sm" aria-label="Remover sessão do histórico" onClick={() => deleteSession(s.id)}>
                     <Trash2 size={15} />
                   </button>

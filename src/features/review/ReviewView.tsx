@@ -100,13 +100,13 @@ export function ReviewView() {
         </ul>
       </section>
 
-      <div className="mt-8 grid gap-8 lg:grid-cols-2">
+      <div className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-2">
         <section aria-label="Hábitos da semana">
           <SectionTitle>Hábitos</SectionTitle>
           {sum.byHabit.length === 0 ? (
             <p className="text-sm text-muted">Nenhum hábito previsto nesta semana até agora.</p>
           ) : (
-            <ul className="grid gap-3">
+            <ul className="grid grid-cols-1 gap-3">
               {sum.byHabit.map(({ habit, done, scheduled }) => (
                 <li key={habit.id}>
                   <div className="mb-1 flex justify-between text-sm">
@@ -124,7 +124,7 @@ export function ReviewView() {
           {sum.completedTasks.length === 0 ? (
             <p className="text-sm text-muted">Nenhuma tarefa concluída nesta semana.</p>
           ) : (
-            <ul className="grid gap-1 text-sm">
+            <ul className="grid grid-cols-1 gap-1 text-sm">
               {sum.completedTasks.slice(0, 12).map((t) => (
                 <li key={t.id} className="flex items-center gap-2"><ClipboardCheck size={15} className="shrink-0 text-accent" aria-hidden /><span className="truncate">{t.title}</span></li>
               ))}
@@ -134,7 +134,7 @@ export function ReviewView() {
         </section>
       </div>
 
-      <section className="card metal mt-8 grid gap-5 p-5" aria-label="Reflexão e prioridades">
+      <section className="card metal mt-8 grid grid-cols-1 gap-5 p-5" aria-label="Reflexão e prioridades">
         <Field label="O que funcionou e o que não funcionou nesta semana" htmlFor="r-ref">
           <textarea id="r-ref" className="input" value={review.reflection} onChange={(e) => setReview(start, { reflection: e.target.value })} placeholder="Aprendizados, vitórias, travas…" />
         </Field>

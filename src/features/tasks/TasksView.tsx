@@ -107,9 +107,9 @@ export function TasksView() {
         }
       />
 
-      <div role="tablist" aria-label="Visões" className="seg mb-4">
+      <div role="group" aria-label="Visões" className="seg mb-4">
         {TABS.map((t) => (
-          <button key={t.id} role="tab" aria-selected={view === t.id} onClick={() => setView(t.id)}>
+          <button key={t.id} aria-pressed={view === t.id} onClick={() => setView(t.id)}>
             {t.label}
             {counts[t.id] > 0 && (
               <span className={`ml-1.5 tabular text-xs ${t.id === 'overdue' ? 'text-danger' : 'text-muted'}`}>{counts[t.id]}</span>
@@ -118,7 +118,7 @@ export function TasksView() {
         ))}
       </div>
 
-      <div className="mb-4 grid gap-2 sm:grid-cols-[1fr_auto_auto]">
+      <div className="mb-4 grid grid-cols-1 gap-2 sm:grid-cols-[minmax(0,1fr)_auto_auto]">
         <div className="relative">
           <Search size={16} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted" aria-hidden />
           <input className="input pl-9" type="search" placeholder="Buscar nas tarefas" aria-label="Buscar nas tarefas" value={q} onChange={(e) => setQ(e.target.value)} />
@@ -163,7 +163,7 @@ export function TasksView() {
           </EmptyState>
         )
       ) : view === 'week' ? (
-        <div className="grid gap-5">
+        <div className="grid grid-cols-1 gap-5">
           {groups.map(([date, items]) => (
             <section key={date} aria-label={formatShort(date)}>
               <h3 className="mb-1 px-2 text-sm font-semibold capitalize text-muted">{date === today ? `Hoje · ${formatShort(date)}` : formatShort(date)}</h3>

@@ -24,7 +24,7 @@ function CopyForm({ from, onClose }: { from: number; onClose: () => void }) {
         Escolha para quais dias levar os blocos de {WEEKDAY_LONG[from]}. Os blocos que esses dias já tinham serão{' '}
         <strong className="text-ink">substituídos</strong>.
       </p>
-      <fieldset className="grid gap-1">
+      <fieldset className="grid grid-cols-1 gap-1">
         <legend className="sr-only">Dias de destino</legend>
         {WEEKDAY_ORDER.filter((d) => d !== from).map((d) => (
           <label key={d} className="flex min-h-11 cursor-pointer items-center gap-3 rounded-lg px-2 capitalize hover:bg-surface-2">

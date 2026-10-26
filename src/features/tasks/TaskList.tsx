@@ -26,7 +26,7 @@ export function TaskList({
   const sort = useSortable(ids, reorderTasks)
 
   return (
-    <ul className="grid gap-0.5" aria-label={label}>
+    <ul className="grid grid-cols-1 gap-0.5" aria-label={label}>
       {tasks.map((t) => (
         <TaskRow
           key={t.id}

@@ -18,10 +18,15 @@ export function Modal({
   wide?: boolean
 }) {
   const ref = useRef<HTMLDialogElement>(null)
+  const bodyRef = useRef<HTMLDivElement>(null)
   useEffect(() => {
     const d = ref.current
     if (!d) return
-    if (open && !d.open) d.showModal()
+    if (open && !d.open) {
+      d.showModal()
+      // o foco inicial vai para o primeiro campo do formulário (não para o "Fechar")
+      bodyRef.current?.querySelector<HTMLElement>('input:not([type=hidden]):not([tabindex="-1"]), textarea, select')?.focus()
+    }
     if (!open && d.open) d.close()
   }, [open])
 
@@ -43,7 +48,7 @@ export function Modal({
               <X size={18} />
             </button>
           </div>
-          <div className="min-h-0 flex-1 overflow-y-auto px-5 py-4">{children}</div>
+          <div ref={bodyRef} className="min-h-0 flex-1 overflow-y-auto px-5 py-4">{children}</div>
           {footer && (
             <div className="flex flex-wrap items-center justify-end gap-2 border-t border-line px-5 py-3 pb-[max(12px,env(safe-area-inset-bottom))]">
               {footer}

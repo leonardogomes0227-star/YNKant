@@ -52,7 +52,7 @@ function GoalCard({ goal, today }: { goal: Goal; today: string }) {
       </div>
 
       {goal.milestones.length > 0 && (
-        <ul className="mt-3 grid gap-0.5" aria-label="Marcos">
+        <ul className="mt-3 grid grid-cols-1 gap-0.5" aria-label="Marcos">
           {goal.milestones.map((m) => (
             <li key={m.id} className="flex items-center gap-1">
               <CheckCircle checked={m.done} onChange={() => toggleMilestone(goal.id, m.id)} label={m.done ? `Reabrir marco “${m.title}”` : `Concluir marco “${m.title}”`} />
@@ -87,7 +87,7 @@ export function GoalsView() {
           Metas dão direção ao dia a dia. Defina um prazo, quebre em marcos e vincule as tarefas e hábitos que levam até ela.
         </EmptyState>
       ) : (
-        <div className="grid gap-4 lg:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
           {sorted.map((g) => (
             <GoalCard key={g.id} goal={g} today={today} />
           ))}

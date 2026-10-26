@@ -56,9 +56,9 @@ export function NotesView() {
           )
         }
       />
-      <div role="tablist" aria-label="Seções" className="seg mb-5">
-        <button role="tab" aria-selected={tab === 'notas'} onClick={() => setTab('notas')}>Notas</button>
-        <button role="tab" aria-selected={tab === 'diario'} onClick={() => setTab('diario')}>Diário</button>
+      <div role="group" aria-label="Seções" className="seg mb-5">
+        <button aria-pressed={tab === 'notas'} onClick={() => setTab('notas')}>Notas</button>
+        <button aria-pressed={tab === 'diario'} onClick={() => setTab('diario')}>Diário</button>
       </div>
 
       {tab === 'diario' ? (
@@ -69,7 +69,7 @@ export function NotesView() {
         </EmptyState>
       ) : (
         <>
-          <div className="mb-4 grid gap-3">
+          <div className="mb-4 grid grid-cols-1 gap-3">
             <div className="relative">
               <Search size={16} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted" aria-hidden />
               <input className="input pl-9" type="search" placeholder="Buscar nas notas" aria-label="Buscar nas notas" value={q} onChange={(e) => setQ(e.target.value)} />
@@ -88,17 +88,17 @@ export function NotesView() {
               Tente outro termo ou escolha outra etiqueta.
             </EmptyState>
           ) : (
-            <div className="grid gap-6">
+            <div className="grid grid-cols-1 gap-6">
               {pinned.length > 0 && (
                 <section aria-label="Notas fixadas">
                   <h2 className="mb-2 flex items-center gap-2 font-sans text-xs font-semibold uppercase tracking-wider text-muted"><Pin size={13} aria-hidden /> Fixadas</h2>
-                  <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">{pinned.map((n) => <NoteCard key={n.id} note={n} onOpen={() => openItem({ kind: 'note', id: n.id })} />)}</ul>
+                  <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">{pinned.map((n) => <NoteCard key={n.id} note={n} onOpen={() => openItem({ kind: 'note', id: n.id })} />)}</ul>
                 </section>
               )}
               {rest.length > 0 && (
                 <section aria-label="Outras notas">
                   {pinned.length > 0 && <h2 className="mb-2 font-sans text-xs font-semibold uppercase tracking-wider text-muted">Outras</h2>}
-                  <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">{rest.map((n) => <NoteCard key={n.id} note={n} onOpen={() => openItem({ kind: 'note', id: n.id })} />)}</ul>
+                  <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">{rest.map((n) => <NoteCard key={n.id} note={n} onOpen={() => openItem({ kind: 'note', id: n.id })} />)}</ul>
                 </section>
               )}
             </div>

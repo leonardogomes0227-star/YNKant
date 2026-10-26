@@ -88,7 +88,7 @@ function HabitForm({ habit, onClose }: { habit?: Habit; onClose: () => void }) {
   }
 
   return (
-    <form id="habit-form" onSubmit={submit} className="grid gap-4">
+    <form id="habit-form" onSubmit={submit} className="grid grid-cols-1 gap-4">
       <Field label="Nome" htmlFor="h-name">
         <input id="h-name" className="input" value={name} onChange={(e) => setName(e.target.value)} placeholder="Ex.: Beber água" autoFocus required />
       </Field>

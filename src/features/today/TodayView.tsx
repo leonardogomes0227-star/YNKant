@@ -170,7 +170,7 @@ export function TodayView() {
         </section>
       )}
 
-      <div className="mt-8 grid gap-8 lg:grid-cols-2">
+      <div className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-2">
         <section aria-label="Tarefas de hoje">
           <SectionTitle aside={<a href="#/tarefas" className="text-sm text-accent hover:underline">Ver todas</a>}>Tarefas de hoje</SectionTitle>
           {overdue.length > 0 && (
@@ -203,7 +203,7 @@ export function TodayView() {
               Crie um hábito em Hábitos e escolha os dias da semana em que ele vale.
             </EmptyState>
           ) : (
-            <ul className="grid gap-0.5">
+            <ul className="grid grid-cols-1 gap-0.5">
               {todayHabits.map((h) => (
                 <li key={h.id} className="flex items-center justify-between gap-2 rounded-xl px-2 py-1 hover:bg-surface-2/60">
                   <span className="flex min-h-11 min-w-0 flex-1 items-center gap-2">

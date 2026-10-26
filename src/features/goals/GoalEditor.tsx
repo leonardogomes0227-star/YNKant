@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Plus, Trash2 } from 'lucide-react'
+import { DateField } from '../../components/DateField'
 import { ConfirmDialog, Field, Modal } from '../../components/ui'
 import { uid } from '../../lib/id'
 import { useStore } from '../../store/useStore'
@@ -67,6 +68,7 @@ function GoalForm({ goal, onClose }: { goal?: Goal; onClose: () => void }) {
   const [newMs, setNewMs] = useState('')
   const [taskIds, setTaskIds] = useState<string[]>(goal?.taskIds ?? [])
   const [habitIds, setHabitIds] = useState<string[]>(goal?.habitIds ?? [])
+  const [dateOk, setDateOk] = useState(true)
 
   const toggle = (list: string[], set: (v: string[]) => void, id: string) =>
     set(list.includes(id) ? list.filter((x) => x !== id) : [...list, id])
@@ -81,7 +83,7 @@ function GoalForm({ goal, onClose }: { goal?: Goal; onClose: () => void }) {
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault()
-    if (!title.trim()) return
+    if (!title.trim() || !dateOk) return
     const pending = newMs.trim()
     const ms = pending ? [...milestones, { id: uid(), title: pending, done: false }] : milestones
     const data = {
@@ -100,16 +102,16 @@ function GoalForm({ goal, onClose }: { goal?: Goal; onClose: () => void }) {
   }
 
   return (
-    <form id="goal-form" onSubmit={submit} className="grid gap-5">
+    <form id="goal-form" onSubmit={submit} className="grid grid-cols-1 gap-5">
       <Field label="Título" htmlFor="g-title">
         <input id="g-title" className="input" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Ex.: Correr 10 km" autoFocus required />
       </Field>
       <Field label="Descrição" htmlFor="g-desc">
         <textarea id="g-desc" className="input" value={description} onChange={(e) => setDescription(e.target.value)} />
       </Field>
-      <div className="grid gap-5 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
         <Field label="Prazo" htmlFor="g-deadline">
-          <input id="g-deadline" type="date" className="input" value={deadline} onChange={(e) => setDeadline(e.target.value)} />
+          <DateField id="g-deadline" value={deadline} onChange={setDeadline} onValidity={setDateOk} />
         </Field>
         <div>
           <label className="label" htmlFor="g-progress">Progresso: <span className="tabular text-ink">{useAuto ? Math.round((milestones.filter((m) => m.done).length / milestones.length) * 100) : progress}%</span></label>
@@ -119,7 +121,7 @@ function GoalForm({ goal, onClose }: { goal?: Goal; onClose: () => void }) {
 
       <div>
         <span className="label">Marcos (etapas)</span>
-        <ul className="grid gap-1">
+        <ul className="grid grid-cols-1 gap-1">
           {milestones.map((m) => (
             <li key={m.id} className="flex items-center gap-2">
               <input type="checkbox" className="size-4 accent-[var(--accent)]" checked={m.done} aria-label={`Marco “${m.title}” concluído`} onChange={() => setMilestones((all) => all.map((x) => (x.id === m.id ? { ...x, done: !x.done } : x)))} />
@@ -140,7 +142,7 @@ function GoalForm({ goal, onClose }: { goal?: Goal; onClose: () => void }) {
         </label>
       </div>
 
-      <div className="grid gap-5 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
         <fieldset className="m-0 min-w-0 border-0 p-0">
           <legend className="label">Tarefas vinculadas</legend>
           {selectable.length === 0 ? (

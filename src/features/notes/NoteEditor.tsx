@@ -77,7 +77,7 @@ function NoteForm({ note, onClose }: { note?: Note; onClose: () => void }) {
       onKeyDown={(e) => {
         if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') submit(e)
       }}
-      className="grid gap-4"
+      className="grid grid-cols-1 gap-4"
     >
       <Field label="Título" htmlFor="n-title">
         <input id="n-title" className="input" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Sem título" autoFocus />
@@ -85,7 +85,7 @@ function NoteForm({ note, onClose }: { note?: Note; onClose: () => void }) {
       <Field label="Texto" htmlFor="n-body" hint="Ctrl/⌘ + Enter salva.">
         <textarea id="n-body" className="input min-h-48" value={body} onChange={(e) => setBody(e.target.value)} placeholder="Escreva livremente…" />
       </Field>
-      <div className="grid gap-4 sm:grid-cols-[1fr_auto] sm:items-end">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end">
         <Field label="Etiquetas" htmlFor="n-tags" hint="Separe por vírgula.">
           <input id="n-tags" className="input" value={tags} onChange={(e) => setTags(e.target.value)} placeholder="ideias, trabalho" />
         </Field>

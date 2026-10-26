@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Plus, Trash2 } from 'lucide-react'
+import { DateField } from '../../components/DateField'
 import { ConfirmDialog, Field, Modal } from '../../components/ui'
 import { uid } from '../../lib/id'
 import { PRIORITY_LABEL } from '../../lib/tasks'
@@ -73,6 +74,7 @@ function TaskForm({ task, defaults, onClose }: { task?: Task; defaults?: Partial
   const [repeat, setRepeat] = useState<Repeat>(init.repeat ?? 'none')
   const [subtasks, setSubtasks] = useState<Subtask[]>(init.subtasks ?? [])
   const [newSub, setNewSub] = useState('')
+  const [dateOk, setDateOk] = useState(true)
 
   const addSub = () => {
     const t = newSub.trim()
@@ -83,7 +85,7 @@ function TaskForm({ task, defaults, onClose }: { task?: Task; defaults?: Partial
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault()
-    if (!title.trim()) return
+    if (!title.trim() || !dateOk) return
     const pendingSub = newSub.trim()
     const subs = pendingSub ? [...subtasks, { id: uid(), title: pendingSub, done: false }] : subtasks
     const cat = category.trim()
@@ -104,7 +106,7 @@ function TaskForm({ task, defaults, onClose }: { task?: Task; defaults?: Partial
   }
 
   return (
-    <form id="task-form" onSubmit={submit} className="grid gap-4">
+    <form id="task-form" onSubmit={submit} className="grid grid-cols-1 gap-4">
       <Field label="Título" htmlFor="t-title">
         <input
           id="t-title"
@@ -119,9 +121,9 @@ function TaskForm({ task, defaults, onClose }: { task?: Task; defaults?: Partial
       <Field label="Descrição" htmlFor="t-desc">
         <textarea id="t-desc" className="input" value={description} onChange={(e) => setDescription(e.target.value)} />
       </Field>
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <Field label="Data" htmlFor="t-date" hint="Sem data, a tarefa fica na Caixa de entrada.">
-          <input id="t-date" type="date" className="input" value={dueDate} onChange={(e) => setDueDate(e.target.value)} />
+          <DateField id="t-date" value={dueDate} onChange={setDueDate} onValidity={setDateOk} />
         </Field>
         <Field label="Repetição" htmlFor="t-repeat" hint={repeat !== 'none' && !dueDate ? 'Escolha uma data para repetir.' : undefined}>
           <select id="t-repeat" className="input" value={repeat} onChange={(e) => setRepeat(e.target.value as Repeat)}>
@@ -132,7 +134,7 @@ function TaskForm({ task, defaults, onClose }: { task?: Task; defaults?: Partial
           </select>
         </Field>
       </div>
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div>
           <span className="label" id="t-prio-l">Prioridade</span>
           <div className="seg" role="group" aria-labelledby="t-prio-l">
@@ -161,7 +163,7 @@ function TaskForm({ task, defaults, onClose }: { task?: Task; defaults?: Partial
       </div>
       <div>
         <span className="label">Subtarefas</span>
-        <ul className="grid gap-1">
+        <ul className="grid grid-cols-1 gap-1">
           {subtasks.map((s) => (
             <li key={s.id} className="flex items-center gap-2">
               <input

@@ -33,7 +33,7 @@ export function TaskRow({
     >
       {handleProps && (
         <button
-          className="icon-btn icon-btn-sm -ml-1 hidden sm:inline-grid"
+          className="icon-btn icon-btn-sm -ml-1"
           aria-label={`Reordenar “${task.title}”: arraste ou use as setas ↑ ↓`}
           {...handleProps(task.id)}
         >

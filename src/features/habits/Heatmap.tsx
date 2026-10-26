@@ -17,7 +17,7 @@ export function Heatmap({ habit, today }: { habit: Habit; today: DateKey }) {
 
   return (
     <figure className="m-0 max-w-md" aria-label={`Calendário de calor de ${habit.name}: ${total} dias concluídos nos últimos 3 meses`}>
-      <div className="grid gap-x-[3px]" style={{ gridTemplateColumns: 'repeat(13, 1fr)' }} aria-hidden>
+      <div className="grid grid-cols-1 gap-x-[3px]" style={{ gridTemplateColumns: 'repeat(13, 1fr)' }} aria-hidden>
         {monthLabels.map((m, i) => (
           <span key={i} className="h-4 overflow-visible whitespace-nowrap text-[10px] capitalize text-muted">
             {m}
@@ -25,7 +25,7 @@ export function Heatmap({ habit, today }: { habit: Habit; today: DateKey }) {
         ))}
       </div>
       <div
-        className="grid gap-[3px]"
+        className="grid grid-cols-1 gap-[3px]"
         style={{ gridTemplateRows: 'repeat(7, auto)', gridAutoFlow: 'column', gridAutoColumns: '1fr' }}
         role="img"
         aria-label={`${total} dias concluídos`}

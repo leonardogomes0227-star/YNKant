@@ -110,7 +110,7 @@ function BlockForm({ block, defaultDays, onClose }: { block?: RoutineBlock; defa
   }
 
   return (
-    <form id="block-form" onSubmit={submit} className="grid gap-4">
+    <form id="block-form" onSubmit={submit} className="grid grid-cols-1 gap-4">
       <Field label="Título" htmlFor="b-title">
         <input id="b-title" className="input" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Ex.: Trabalho focado" autoFocus required />
       </Field>
@@ -160,7 +160,7 @@ function BlockForm({ block, defaultDays, onClose }: { block?: RoutineBlock; defa
         {days.length === 0 && <p role="alert" className="mt-1 text-sm text-danger">Escolha pelo menos um dia.</p>}
         <p className="mt-1.5 text-xs text-muted">O bloco vale para todos os dias marcados; alterar aqui muda todos eles.</p>
       </div>
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <Field label="Categoria" htmlFor="b-cat">
           <input id="b-cat" className="input" list="b-cats" value={category} onChange={(e) => setCategory(e.target.value)} placeholder="Opcional" />
           <datalist id="b-cats">
