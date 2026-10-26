@@ -210,7 +210,6 @@ export function FocusView() {
                   <span className="tabular w-[76px] shrink-0 text-sm text-muted sm:w-24">{s.date === today ? 'Hoje' : s.date === shiftKey(today, -1) ? 'Ontem' : formatBR(s.date)}</span>
                   <span className="tabular w-14 shrink-0 font-semibold sm:w-16">{formatDuration(s.seconds)}</span>
                   <span className="min-w-0 flex-1 truncate text-sm text-muted">{t ? t.title : 'Sem tarefa vinculada'}</span>
-                  {s.sample && <span className="chip hidden sm:inline-flex">Exemplo</span>}
                   <button className="icon-btn icon-btn-sm" aria-label="Remover sessão do histórico" onClick={() => deleteSession(s.id)}>
                     <Trash2 size={15} />
                   </button>

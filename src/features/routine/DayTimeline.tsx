@@ -1,5 +1,4 @@
 import { Check, Copy } from 'lucide-react'
-import { SampleBadge } from '../../components/ui'
 import { colorHex } from '../../lib/colors'
 import { nowMinutes, timeToMin } from '../../lib/dates'
 import { hourRange, layoutColumns } from '../../lib/routine'
@@ -92,7 +91,6 @@ export function DayTimeline({
                     <span className="tabular mt-0.5 flex flex-wrap items-center gap-x-2 text-xs text-muted">
                       {b.start}–{b.end}
                       {b.category && <span>· {b.category}</span>}
-                      {b.sample && <SampleBadge />}
                     </span>
                   )}
                 </button>

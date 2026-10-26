@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { ChevronLeft, ChevronRight, Flame, Pencil, Plus, Trophy } from 'lucide-react'
-import { EmptyState, PageHeader, SampleBadge } from '../../components/ui'
+import { EmptyState, PageHeader } from '../../components/ui'
 import { formatLong, fromKey, shiftKey, todayKey, WEEKDAY_SHORT, WEEKDAY_ORDER, weekdayOf } from '../../lib/dates'
 import { habitStats, isDone, isScheduled } from '../../lib/streak'
 import { useNow } from '../../lib/useNow'
@@ -27,7 +27,6 @@ function HabitCard({ habit, date, today, onEdit }: { habit: Habit; date: DateKey
         <div className="min-w-0">
           <h2 className="flex flex-wrap items-center gap-2 text-xl">
             <span className="truncate">{habit.name}</span>
-            {habit.sample && <SampleBadge />}
           </h2>
           <p className="mt-0.5 text-sm text-muted">
             {scheduleText(habit.days)}

@@ -19,7 +19,6 @@ import { uid } from '../lib/id'
 import { copyDayBlocks } from '../lib/routine'
 import { blockDefaults, emptyData, freshTimer, goalDefaults, habitDefaults, noteDefaults, taskDefaults } from './defaults'
 import { DATA_VERSION, migrate, normalizeData } from './migrations'
-import { createSampleData } from './samples'
 
 export function modeSeconds(s: Settings, mode: TimerMode): number {
   const min = mode === 'focus' ? s.focusMinutes : mode === 'short' ? s.shortBreakMinutes : s.longBreakMinutes
@@ -70,7 +69,6 @@ interface Actions {
   finishTimer: (natural: boolean) => void
   deleteSession: (id: string) => void
 
-  clearSamples: () => void
   replaceAll: (data: AppData) => void
 }
 
@@ -89,18 +87,11 @@ const DATA_KEYS: (keyof AppData)[] = [
   'categories',
   'settings',
   'timer',
-  'samplesLoaded',
 ]
 
 export function pickData(s: AppData): AppData {
   return Object.fromEntries(DATA_KEYS.map((k) => [k, s[k]])) as unknown as AppData
 }
-
-/** Edição manual tira o selo de exemplo. */
-const owned = <T extends { sample?: boolean }>(patch: Partial<T>): Partial<T> => ({
-  ...patch,
-  sample: undefined,
-})
 
 const nowIso = () => new Date().toISOString()
 const maxOrder = (tasks: Task[]) => tasks.reduce((m, t) => Math.max(m, t.order), 0)
@@ -108,7 +99,7 @@ const maxOrder = (tasks: Task[]) => tasks.reduce((m, t) => Math.max(m, t.order),
 export const useStore = create<Store>()(
   persist(
     (set, get) => ({
-      ...createSampleData(),
+      ...emptyData(),
 
       // ---------- tarefas ----------
       addTask: (t) => {
@@ -122,7 +113,7 @@ export const useStore = create<Store>()(
         return id
       },
       updateTask: (id, patch) =>
-        set((s) => ({ tasks: s.tasks.map((t) => (t.id === id ? { ...t, ...owned<Task>(patch) } : t)) })),
+        set((s) => ({ tasks: s.tasks.map((t) => (t.id === id ? { ...t, ...patch } : t)) })),
       deleteTask: (id) =>
         set((s) => ({
           tasks: s.tasks.filter((t) => t.id !== id),
@@ -184,7 +175,7 @@ export const useStore = create<Store>()(
         return id
       },
       updateHabit: (id, patch) =>
-        set((s) => ({ habits: s.habits.map((h) => (h.id === id ? { ...h, ...owned<Habit>(patch) } : h)) })),
+        set((s) => ({ habits: s.habits.map((h) => (h.id === id ? { ...h, ...patch } : h)) })),
       deleteHabit: (id) =>
         set((s) => ({
           habits: s.habits.filter((h) => h.id !== id),
@@ -208,13 +199,13 @@ export const useStore = create<Store>()(
         return id
       },
       updateBlock: (id, patch) =>
-        set((s) => ({ routine: s.routine.map((b) => (b.id === id ? { ...b, ...owned<RoutineBlock>(patch) } : b)) })),
+        set((s) => ({ routine: s.routine.map((b) => (b.id === id ? { ...b, ...patch } : b)) })),
       deleteBlock: (id) => set((s) => ({ routine: s.routine.filter((b) => b.id !== id) })),
       duplicateBlock: (id) =>
         set((s) => {
           const b = s.routine.find((x) => x.id === id)
           if (!b) return {}
-          return { routine: [...s.routine, { ...b, id: uid(), title: `${b.title} (cópia)`, sample: undefined }] }
+          return { routine: [...s.routine, { ...b, id: uid(), title: `${b.title} (cópia)`}] }
         }),
       copyDay: (from, to) => set((s) => ({ routine: copyDayBlocks(s.routine, from, to) })),
       toggleBlockDone: (date, id) =>
@@ -233,13 +224,13 @@ export const useStore = create<Store>()(
       },
       updateNote: (id, patch) =>
         set((s) => ({
-          notes: s.notes.map((n) => (n.id === id ? { ...n, ...owned<Note>(patch), updatedAt: nowIso() } : n)),
+          notes: s.notes.map((n) => (n.id === id ? { ...n, ...patch, updatedAt: nowIso() } : n)),
         })),
       deleteNote: (id) => set((s) => ({ notes: s.notes.filter((n) => n.id !== id) })),
       setJournal: (date, patch) =>
         set((s) => {
           const base: JournalEntry = s.journal[date] ?? { mood: null, how: '', good: ['', '', ''], improve: '' }
-          return { journal: { ...s.journal, [date]: { ...base, ...patch, sample: undefined } } }
+          return { journal: { ...s.journal, [date]: { ...base, ...patch} } }
         }),
 
       // ---------- metas ----------
@@ -249,7 +240,7 @@ export const useStore = create<Store>()(
         return id
       },
       updateGoal: (id, patch) =>
-        set((s) => ({ goals: s.goals.map((g) => (g.id === id ? { ...g, ...owned<Goal>(patch) } : g)) })),
+        set((s) => ({ goals: s.goals.map((g) => (g.id === id ? { ...g, ...patch } : g)) })),
       deleteGoal: (id) =>
         set((s) => ({
           goals: s.goals.filter((g) => g.id !== id),
@@ -358,37 +349,6 @@ export const useStore = create<Store>()(
       deleteSession: (id) => set((s) => ({ focusSessions: s.focusSessions.filter((x) => x.id !== id) })),
 
       // ---------- dados ----------
-      clearSamples: () =>
-        set((s) => {
-          const keep = <T extends { sample?: boolean }>(a: T[]) => a.filter((x) => !x.sample)
-          const gone = {
-            tasks: new Set(s.tasks.filter((t) => t.sample).map((t) => t.id)),
-            habits: new Set(s.habits.filter((h) => h.sample).map((h) => h.id)),
-            blocks: new Set(s.routine.filter((b) => b.sample).map((b) => b.id)),
-          }
-          const routineLog = Object.fromEntries(
-            Object.entries(s.routineLog)
-              .map(([k, ids]) => [k, ids.filter((id) => !gone.blocks.has(id))] as const)
-              .filter(([, ids]) => ids.length > 0),
-          )
-          return {
-            tasks: keep(s.tasks),
-            habits: keep(s.habits),
-            routine: keep(s.routine),
-            routineLog,
-            notes: keep(s.notes),
-            goals: keep(s.goals).map((g) => ({
-              ...g,
-              taskIds: g.taskIds.filter((id) => !gone.tasks.has(id)),
-              habitIds: g.habitIds.filter((id) => !gone.habits.has(id)),
-            })),
-            focusSessions: keep(s.focusSessions),
-            journal: Object.fromEntries(Object.entries(s.journal).filter(([, j]) => !j.sample)),
-            timer: s.timer.taskId && gone.tasks.has(s.timer.taskId) ? { ...s.timer, taskId: null } : s.timer,
-            samplesLoaded: true,
-          }
-        }),
-      // o timer nunca é restaurado em andamento
       replaceAll: (data) => set({ ...data, timer: freshTimer(data.settings) }),
     }),
     {
@@ -396,24 +356,11 @@ export const useStore = create<Store>()(
       version: DATA_VERSION,
       partialize: (s) => pickData(s) as Store,
       migrate: (persisted, version) => normalizeData(migrate(persisted, version)) as Store,
-      // sem nada salvo (primeiro acesso) o zustand chama merge com `undefined`:
-      // mantém o estado inicial, que já traz os exemplos.
+      // sem nada salvo (primeiro acesso) o zustand chama merge com `undefined`
       merge: (persisted, current) =>
         persisted && typeof persisted === 'object' ? { ...current, ...normalizeData(persisted) } : current,
     },
   ),
 )
-
-export function hasSamples(s: AppData): boolean {
-  return (
-    s.tasks.some((x) => x.sample) ||
-    s.habits.some((x) => x.sample) ||
-    s.routine.some((x) => x.sample) ||
-    s.notes.some((x) => x.sample) ||
-    s.goals.some((x) => x.sample) ||
-    s.focusSessions.some((x) => x.sample) ||
-    Object.values(s.journal).some((j) => j.sample)
-  )
-}
 
 export { emptyData, freshTimer }

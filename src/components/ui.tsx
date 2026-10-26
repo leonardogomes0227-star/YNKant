@@ -194,14 +194,6 @@ export function CheckCircle({
   )
 }
 
-export function SampleBadge() {
-  return (
-    <span className="chip" title="Item de exemplo — pode ser removido em Ajustes › Limpar exemplos">
-      Exemplo
-    </span>
-  )
-}
-
 export function Field({
   label,
   htmlFor,

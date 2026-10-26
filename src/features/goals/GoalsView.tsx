@@ -1,5 +1,5 @@
 import { CalendarDays, Flame, ListChecks, Pencil, Plus, Target } from 'lucide-react'
-import { CheckCircle, EmptyState, PageHeader, ProgressBar, SampleBadge } from '../../components/ui'
+import { CheckCircle, EmptyState, PageHeader, ProgressBar } from '../../components/ui'
 import { formatBR, todayKey } from '../../lib/dates'
 import { deadlineInfo, goalProgress, linkedHabits, linkedTasks } from '../../lib/goals'
 import { useNow } from '../../lib/useNow'
@@ -23,7 +23,6 @@ function GoalCard({ goal, today }: { goal: Goal; today: string }) {
         <div className="min-w-0">
           <h2 className="flex flex-wrap items-center gap-2 text-xl">
             <span>{goal.title}</span>
-            {goal.sample && <SampleBadge />}
           </h2>
           {goal.description && <p className="mt-1 line-clamp-2 text-sm text-muted">{goal.description}</p>}
         </div>

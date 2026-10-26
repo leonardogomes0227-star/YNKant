@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { NotebookPen, Pin, Plus, Search } from 'lucide-react'
-import { EmptyState, PageHeader, SampleBadge } from '../../components/ui'
+import { EmptyState, PageHeader } from '../../components/ui'
 import { formatBR } from '../../lib/dates'
 import { matches } from '../../lib/search'
 import { useStore } from '../../store/useStore'
@@ -21,7 +21,6 @@ function NoteCard({ note, onOpen }: { note: Note; onOpen: () => void }) {
           {note.tags.map((t) => (
             <span key={t} className="chip">#{t}</span>
           ))}
-          {note.sample && <SampleBadge />}
           <span className="tabular ml-auto text-xs text-muted">{formatBR(note.updatedAt.slice(0, 10))}</span>
         </span>
       </button>

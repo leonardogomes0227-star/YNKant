@@ -20,8 +20,6 @@ npm run lint
 npm test           # testes das funções de data, streak, rotina, backup…
 ```
 
-No primeiro acesso o app carrega **dados de exemplo**, marcados com o selo “Exemplo”. Remova-os em *Hoje* ou *Ajustes › Limpar exemplos*.
-
 ## Atalhos
 
 | Atalho | Ação |
@@ -61,7 +59,7 @@ Pela CLI: `npx vercel` (e `npx vercel --prod`).
 src/
   components/   interface compartilhada (layout, modal, busca, captura…)
   features/     uma pasta por módulo: today, tasks, routine, habits, focus, notes, goals, review, settings
-  store/        estado (Zustand + persist), migrações, exemplos, estado de UI
+  store/        estado (Zustand + persist), migrações, estado de UI
   lib/          funções puras: datas, streak, rotina, revisão, backup… (com testes *.test.ts)
   types/        Task, Habit, RoutineBlock, Note, Goal, FocusSession…
 public/         manifest, service worker (sw.js) e ícones

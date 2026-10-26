@@ -25,7 +25,6 @@ export interface Task {
   completedAt: string | null
   order: number
   createdAt: string
-  sample?: boolean
 }
 
 export type HabitKind = 'check' | 'count'
@@ -43,7 +42,6 @@ export interface Habit {
   note: string
   log: Record<DateKey, number>
   createdAt: DateKey
-  sample?: boolean
 }
 
 export interface RoutineBlock {
@@ -55,7 +53,6 @@ export interface RoutineBlock {
   category: string
   /** Dias da semana em que o bloco se aplica (0 = domingo … 6 = sábado). */
   days: number[]
-  sample?: boolean
 }
 
 export interface Note {
@@ -66,7 +63,6 @@ export interface Note {
   pinned: boolean
   createdAt: string
   updatedAt: string
-  sample?: boolean
 }
 
 export interface JournalEntry {
@@ -74,7 +70,6 @@ export interface JournalEntry {
   how: string
   good: [string, string, string]
   improve: string
-  sample?: boolean
 }
 
 export interface Milestone {
@@ -94,7 +89,6 @@ export interface Goal {
   taskIds: string[]
   habitIds: string[]
   createdAt: string
-  sample?: boolean
 }
 
 export interface FocusSession {
@@ -103,7 +97,6 @@ export interface FocusSession {
   date: DateKey
   seconds: number
   taskId: string | null
-  sample?: boolean
 }
 
 export interface WeeklyReview {
@@ -153,7 +146,6 @@ export interface AppData {
   categories: string[]
   settings: Settings
   timer: TimerState
-  samplesLoaded: boolean
 }
 
 export type RouteId =

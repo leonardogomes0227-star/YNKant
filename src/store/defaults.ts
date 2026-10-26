@@ -48,7 +48,6 @@ export function emptyData(): AppData {
     categories: [...DEFAULT_CATEGORIES],
     settings: { ...defaultSettings },
     timer: freshTimer(),
-    samplesLoaded: true,
   }
 }
 

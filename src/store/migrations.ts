@@ -51,7 +51,6 @@ export function normalizeData(input: unknown): AppData {
         how: typeof v.how === 'string' ? v.how : '',
         good: [good[0] ?? '', good[1] ?? '', good[2] ?? ''],
         improve: typeof v.improve === 'string' ? v.improve : '',
-        sample: v.sample === true ? true : undefined,
       }
     }
   }
@@ -106,6 +105,5 @@ export function normalizeData(input: unknown): AppData {
     timer: isObj(raw.timer)
       ? { ...freshTimer(settings), ...(raw.timer as object) }
       : freshTimer(settings),
-    samplesLoaded: raw.samplesLoaded !== false,
   }
 }

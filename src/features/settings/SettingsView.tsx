@@ -6,7 +6,7 @@ import { modKey } from '../../lib/platform'
 import { useInstall } from '../../lib/useInstall'
 import { emptyData } from '../../store/defaults'
 import { DATA_VERSION } from '../../store/migrations'
-import { hasSamples, pickData, useStore } from '../../store/useStore'
+import { pickData, useStore } from '../../store/useStore'
 import { useUI } from '../../store/ui'
 import type { AppData, ThemePref } from '../../types'
 
@@ -25,15 +25,12 @@ function Row({ title, children, desc }: { title: string; desc?: string; children
 export function SettingsView() {
   const settings = useStore((s) => s.settings)
   const updateSettings = useStore((s) => s.updateSettings)
-  const clearSamples = useStore((s) => s.clearSamples)
   const replaceAll = useStore((s) => s.replaceAll)
-  const showSamples = useStore(hasSamples)
   const toast = useUI((s) => s.toast)
   const install = useInstall()
   const fileRef = useRef<HTMLInputElement>(null)
   const [incoming, setIncoming] = useState<AppData | null>(null)
   const [error, setError] = useState('')
-  const [confirmSamples, setConfirmSamples] = useState(false)
   const [confirmWipe, setConfirmWipe] = useState(false)
 
   const current = () => pickData(useStore.getState())
@@ -90,11 +87,6 @@ export function SettingsView() {
       <section className="mt-8" aria-label="Dados">
         <SectionTitle>Dados</SectionTitle>
         <div className="card px-5">
-          {showSamples && (
-            <Row title="Limpar exemplos" desc="Remove todos os itens marcados como “Exemplo”. O que você criou fica.">
-              <button className="btn" onClick={() => setConfirmSamples(true)}>Limpar exemplos</button>
-            </Row>
-          )}
           <Row title="Apagar tudo" desc="Remove todos os dados deste aparelho. Exporte um backup antes.">
             <button className="btn btn-danger" onClick={() => setConfirmWipe(true)}><Trash2 size={16} aria-hidden /> Apagar tudo</button>
           </Row>
@@ -131,18 +123,6 @@ export function SettingsView() {
           if (incoming) replaceAll(incoming)
           setIncoming(null)
           toast('Dados importados com sucesso.')
-        }}
-      />
-      <ConfirmDialog
-        open={confirmSamples}
-        title="Limpar exemplos?"
-        message="Os itens de exemplo (tarefas, hábitos, blocos, notas, meta, diário e sessões) serão removidos."
-        confirmLabel="Limpar"
-        onCancel={() => setConfirmSamples(false)}
-        onConfirm={() => {
-          clearSamples()
-          setConfirmSamples(false)
-          toast('Exemplos removidos.')
         }}
       />
       <ConfirmDialog

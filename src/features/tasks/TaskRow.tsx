@@ -1,5 +1,5 @@
 import { CalendarDays, GripVertical, ListChecks, Repeat } from 'lucide-react'
-import { CheckCircle, SampleBadge } from '../../components/ui'
+import { CheckCircle } from '../../components/ui'
 import { PRIORITY_LABEL, dueLabel, isOverdue, subtaskProgress } from '../../lib/tasks'
 import type { Task } from '../../types'
 
@@ -74,7 +74,6 @@ export function TaskRow({
               {{ daily: 'Diária', weekly: 'Semanal', monthly: 'Mensal' }[task.repeat]}
             </span>
           )}
-          {task.sample && <SampleBadge />}
         </span>
       </button>
     </li>

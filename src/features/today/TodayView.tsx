@@ -1,12 +1,12 @@
 import { useMemo, useRef, useState } from 'react'
 import { CalendarClock, CheckSquare, Flame, Plus, Sparkles, Timer } from 'lucide-react'
-import { EmptyState, ProgressBar, SampleBadge, SectionTitle } from '../../components/ui'
+import { EmptyState, ProgressBar, SectionTitle } from '../../components/ui'
 import { formatDuration, formatLong, greeting, nowMinutes, quoteOfDay, todayKey, weekStartKey, shiftKey } from '../../lib/dates'
 import { blocksForDate, currentBlock, nextBlock } from '../../lib/routine'
 import { isScheduled, isDone } from '../../lib/streak'
 import { inView, isOverdue, byOrder } from '../../lib/tasks'
 import { useNow } from '../../lib/useNow'
-import { hasSamples, useStore } from '../../store/useStore'
+import { useStore } from '../../store/useStore'
 import { go, useUI } from '../../store/ui'
 import { HabitControl } from '../habits/HabitControl'
 import { TaskList } from '../tasks/TaskList'
@@ -47,8 +47,6 @@ export function TodayView() {
   const name = useStore((s) => s.settings.name)
   const reviews = useStore((s) => s.reviews)
   const addTask = useStore((s) => s.addTask)
-  const clearSamples = useStore((s) => s.clearSamples)
-  const showSamples = useStore(hasSamples)
   const toast = useUI((s) => s.toast)
   const [quick, setQuick] = useState('')
   const inputRef = useRef<HTMLInputElement>(null)
@@ -98,23 +96,6 @@ export function TodayView() {
           <span className="font-display italic">{quoteOfDay(today)}</span>
         </p>
       </header>
-
-      {showSamples && (
-        <div className="mb-5 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-dashed border-line-strong px-4 py-3 text-sm">
-          <span className="text-muted">
-            Você está vendo <strong className="text-ink">dados de exemplo</strong> para conhecer o app.
-          </span>
-          <button
-            className="btn btn-sm"
-            onClick={() => {
-              clearSamples()
-              toast('Exemplos removidos. Tudo pronto para os seus dados.')
-            }}
-          >
-            Limpar exemplos
-          </button>
-        </div>
-      )}
 
       <section aria-label="Resumo do dia" className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         <Stat icon={CheckSquare} label="Tarefas" value={`${doneToday.length}/${todayTasks.length}`} detail={overdue.length ? `${overdue.length} atrasada(s)` : 'feitas hoje'} to="tarefas" />
@@ -208,7 +189,6 @@ export function TodayView() {
                 <li key={h.id} className="flex items-center justify-between gap-2 rounded-xl px-2 py-1 hover:bg-surface-2/60">
                   <span className="flex min-h-11 min-w-0 flex-1 items-center gap-2">
                     <span className={`truncate font-medium ${isDone(h, today) ? 'text-muted' : ''}`}>{h.name}</span>
-                    {h.sample && <SampleBadge />}
                   </span>
                   <HabitControl habit={h} date={today} />
                 </li>
