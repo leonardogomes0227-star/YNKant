@@ -1,6 +1,7 @@
 import type { DateKey, RoutineBlock } from '../types'
 import { timeToMin, weekdayOf } from './dates'
 
+
 export function blocksForDay(blocks: RoutineBlock[], weekday: number): RoutineBlock[] {
   return blocks.filter((b) => b.days.includes(weekday)).sort(byStart)
 }
@@ -59,4 +60,24 @@ export function layoutColumns(blocks: RoutineBlock[]): Map<string, { col: number
   }
   if (group.length) flush()
   return result
+}
+
+/** Faixa de horas (em minutos) exibida: cobre os blocos com 1h de folga (mín. 7h–21h). */
+export function hourRange(blocks: RoutineBlock[]): [number, number] {
+  if (!blocks.length) return [7 * 60, 21 * 60]
+  const min = Math.min(...blocks.map((b) => timeToMin(b.start)))
+  const max = Math.max(...blocks.map((b) => timeToMin(b.end)))
+  return [Math.max(0, Math.floor((min - 60) / 60) * 60), Math.min(24 * 60, Math.ceil((max + 60) / 60) * 60)]
+}
+
+/**
+ * Copia os blocos do dia `from` para os dias `to`: os blocos que esses dias já
+ * tinham saem (substituição) e os do dia de origem passam a valer também neles.
+ */
+export function copyDayBlocks(blocks: RoutineBlock[], from: number, to: number[]): RoutineBlock[] {
+  const targets = to.filter((d) => d !== from)
+  return blocks
+    .map((b) => (b.days.includes(from) ? b : { ...b, days: b.days.filter((d) => !targets.includes(d)) }))
+    .filter((b) => b.days.length > 0)
+    .map((b) => (b.days.includes(from) ? { ...b, days: [...new Set([...b.days, ...targets])].sort() } : b))
 }

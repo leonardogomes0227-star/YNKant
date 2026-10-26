@@ -78,3 +78,11 @@ export function heatmapRange(today: DateKey, weeks = 13): DateKey[] {
 export function isFuture(key: DateKey, today: DateKey): boolean {
   return fromKey(key).getTime() > fromKey(today).getTime()
 }
+
+/** Nível de intensidade (0–3) de um dia no calendário de calor. */
+export function heatLevel(habit: Pick<Habit, 'target' | 'log'>, key: DateKey): 0 | 1 | 2 | 3 {
+  const v = habit.log[key] ?? 0
+  if (v <= 0) return 0
+  if (isDone(habit, key)) return 3
+  return v / Math.max(1, habit.target) >= 0.5 ? 2 : 1
+}

@@ -16,6 +16,7 @@ import type {
 } from '../types'
 import { nextOccurrence, todayKey } from '../lib/dates'
 import { uid } from '../lib/id'
+import { copyDayBlocks } from '../lib/routine'
 import { blockDefaults, emptyData, freshTimer, goalDefaults, habitDefaults, noteDefaults, taskDefaults } from './defaults'
 import { DATA_VERSION, migrate, normalizeData } from './migrations'
 import { createSampleData } from './samples'
@@ -213,21 +214,7 @@ export const useStore = create<Store>()(
           if (!b) return {}
           return { routine: [...s.routine, { ...b, id: uid(), title: `${b.title} (cópia)`, sample: undefined }] }
         }),
-      copyDay: (from, to) =>
-        set((s) => {
-          const targets = to.filter((d) => d !== from)
-          const source = new Set(s.routine.filter((b) => b.days.includes(from)).map((b) => b.id))
-          const routine = s.routine
-            // limpa os dias de destino (a cópia substitui o que havia)
-            .map((b) =>
-              source.has(b.id) ? b : { ...b, days: b.days.filter((d) => !targets.includes(d)) },
-            )
-            .filter((b) => b.days.length > 0)
-            .map((b) =>
-              source.has(b.id) ? { ...b, days: [...new Set([...b.days, ...targets])].sort() } : b,
-            )
-          return { routine }
-        }),
+      copyDay: (from, to) => set((s) => ({ routine: copyDayBlocks(s.routine, from, to) })),
       toggleBlockDone: (date, id) =>
         set((s) => {
           const cur = s.routineLog[date] ?? []

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { habitStats, heatmapRange } from './streak'
+import { habitStats, heatLevel, heatmapRange } from './streak'
 import { shiftKey } from './dates'
 
 const ALL = [0, 1, 2, 3, 4, 5, 6]
@@ -67,5 +67,16 @@ describe('heatmapRange', () => {
     expect(r).toHaveLength(91)
     expect(r[r.length - 1]).toBe('2026-11-01')
     expect(r).toContain(TODAY)
+  })
+})
+
+describe('heatLevel', () => {
+  it('gradua por progresso em hábitos de contagem', () => {
+    const h = { target: 8, log: { a: 0, b: 2, c: 5, d: 8, e: 10 } as Record<string, number> }
+    expect(heatLevel(h, 'x')).toBe(0)
+    expect(heatLevel(h, 'b')).toBe(1)
+    expect(heatLevel(h, 'c')).toBe(2)
+    expect(heatLevel(h, 'd')).toBe(3)
+    expect(heatLevel(h, 'e')).toBe(3)
   })
 })

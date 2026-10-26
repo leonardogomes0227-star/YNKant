@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { blocksForDate, currentBlock, layoutColumns, nextBlock, overlaps } from './routine'
+import { blocksForDate, copyDayBlocks, currentBlock, hourRange, layoutColumns, nextBlock, overlaps } from './routine'
 import type { RoutineBlock } from '../types'
 
 const mk = (id: string, start: string, end: string, days: number[]): RoutineBlock => ({
@@ -45,5 +45,29 @@ describe('rotina', () => {
     expect(l.get('x')).toEqual({ col: 0, cols: 2 })
     expect(l.get('y')).toEqual({ col: 1, cols: 2 })
     expect(l.get('z')).toEqual({ col: 0, cols: 1 })
+  })
+
+  it('faixa de horas com folga', () => {
+    expect(hourRange([])).toEqual([420, 1260])
+    expect(hourRange([mk('x', '09:30', '11:10', [])])).toEqual([480, 720 + 60])
+  })
+
+  it('copiar dia substitui os blocos do destino', () => {
+    const list = [
+      mk('seg', '09:00', '10:00', [1, 2]), // segunda e terça
+      mk('sab', '09:00', '12:00', [6]),
+      mk('dom', '10:00', '11:00', [0]),
+    ]
+    const out = copyDayBlocks(list, 1, [6, 0])
+    // sábado e domingo perdem seus blocos antigos e ganham o de segunda
+    expect(out.map((b) => b.id)).toEqual(['seg'])
+    expect(out[0].days).toEqual([0, 1, 2, 6])
+  })
+
+  it('copiar dia não mexe em blocos de outros dias', () => {
+    const list = [mk('a', '09:00', '10:00', [1]), mk('b', '09:00', '10:00', [3, 6])]
+    const out = copyDayBlocks(list, 1, [6])
+    expect(out.find((b) => b.id === 'b')?.days).toEqual([3])
+    expect(out.find((b) => b.id === 'a')?.days).toEqual([1, 6])
   })
 })
