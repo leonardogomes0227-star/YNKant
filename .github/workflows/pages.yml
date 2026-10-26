@@ -1,10 +1,10 @@
-# Publica o app no GitHub Pages a cada push na branch principal.
+# Publica o app no GitHub Pages a cada push na branch principal (ou na branch de desenvolvimento).
 # Ative uma vez em: Settings › Pages › Source: "GitHub Actions".
 name: Publicar no GitHub Pages
 
 on:
   push:
-    branches: [main]
+    branches: [main, claude/upbeat-clarke-8a0gqx]
   workflow_dispatch:
 
 permissions:
