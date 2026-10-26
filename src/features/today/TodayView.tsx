@@ -101,7 +101,7 @@ export function TodayView() {
               <span><strong>Hábitos:</strong> coisas para repetir todo dia, como beber água ou ler.</span>
             </li>
           </ol>
-          <p className="mt-4 text-sm text-muted">Use os botões lá embaixo para trocar de tela.</p>
+          <p className="mt-4 text-sm text-muted">Use o menu (embaixo no celular, à esquerda no computador) para trocar de tela.</p>
         </section>
       )}
 
