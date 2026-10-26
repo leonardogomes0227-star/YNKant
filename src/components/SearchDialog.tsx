@@ -1,22 +1,18 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { CheckSquare, NotebookPen, Search, Target } from 'lucide-react'
+import { CheckSquare, Search } from 'lucide-react'
 import { Modal } from './ui'
-import { searchAll, type SearchHit } from '../lib/search'
+import { searchTasks, type SearchHit } from '../lib/search'
 import { useStore } from '../store/useStore'
-import { go, useUI } from '../store/ui'
-
-const ICON = { task: CheckSquare, note: NotebookPen, goal: Target }
-const ROUTE = { task: 'tarefas', note: 'notas', goal: 'metas' } as const
+import { useUI } from '../store/ui'
 
 export function SearchDialog() {
   const { searchOpen, setSearchOpen, openItem } = useUI()
   return (
-    <Modal open={searchOpen} onClose={() => setSearchOpen(false)} title="Busca global">
+    <Modal open={searchOpen} onClose={() => setSearchOpen(false)} title="Buscar tarefas">
       <SearchBody
         onPick={(hit) => {
           setSearchOpen(false)
-          openItem({ kind: hit.kind, id: hit.id })
-          go(ROUTE[hit.kind])
+          openItem({ kind: 'task', id: hit.id })
         }}
       />
     </Modal>
@@ -25,12 +21,10 @@ export function SearchDialog() {
 
 function SearchBody({ onPick }: { onPick: (h: SearchHit) => void }) {
   const tasks = useStore((s) => s.tasks)
-  const notes = useStore((s) => s.notes)
-  const goals = useStore((s) => s.goals)
   const [q, setQ] = useState('')
   const [idx, setIdx] = useState(0)
   const inputRef = useRef<HTMLInputElement>(null)
-  const hits = useMemo(() => searchAll({ tasks, notes, goals }, q), [tasks, notes, goals, q])
+  const hits = useMemo(() => searchTasks(tasks, q), [tasks, q])
 
   useEffect(() => inputRef.current?.focus(), [])
 
@@ -56,7 +50,7 @@ function SearchBody({ onPick }: { onPick: (h: SearchHit) => void }) {
           className="input pl-10"
           type="text"
           role="searchbox"
-          placeholder="Buscar tarefas, notas e metas…"
+          placeholder="Buscar tarefas…"
           aria-label="Buscar"
           value={q}
           onChange={(e) => {
@@ -67,9 +61,8 @@ function SearchBody({ onPick }: { onPick: (h: SearchHit) => void }) {
       </div>
       <ul className="mt-3 grid grid-cols-1 gap-1" role="listbox" aria-label="Resultados">
         {hits.map((h, i) => {
-          const Icon = ICON[h.kind]
           return (
-            <li key={`${h.kind}-${h.id}`} role="option" aria-selected={i === idx}>
+            <li key={h.id} role="option" aria-selected={i === idx}>
               <button
                 className={`flex min-h-12 w-full items-center gap-3 rounded-xl px-3 text-left ${
                   i === idx ? 'bg-surface-2' : 'hover:bg-surface-2/60'
@@ -77,7 +70,7 @@ function SearchBody({ onPick }: { onPick: (h: SearchHit) => void }) {
                 onClick={() => onPick(h)}
                 onMouseEnter={() => setIdx(i)}
               >
-                <Icon size={18} className="shrink-0 text-accent" aria-hidden />
+                <CheckSquare size={18} className="shrink-0 text-accent" aria-hidden />
                 <span className="min-w-0 flex-1 truncate">{h.title}</span>
                 <span className="text-xs text-muted">{h.detail}</span>
               </button>
@@ -90,7 +83,7 @@ function SearchBody({ onPick }: { onPick: (h: SearchHit) => void }) {
       )}
       {!q.trim() && (
         <p className="py-8 text-center text-sm text-muted">
-          Digite para buscar em tarefas, notas e metas. Use ↑ ↓ e Enter para navegar.
+          Digite para buscar nas suas tarefas.
         </p>
       )}
     </div>

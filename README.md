@@ -1,6 +1,6 @@
 # Meu Dia
 
-Organizador pessoal para planejar e acompanhar a rotina diária: tarefas, rotina em blocos de horário, hábitos, foco (Pomodoro), notas e diário, metas e revisão semanal. Sem login e sem backend — tudo fica salvo no seu navegador e funciona offline (PWA).
+Organizador pessoal simples para o dia a dia, com o essencial: **Hoje**, **Tarefas**, **Rotina** (blocos de horário) e **Hábitos**. Sem login e sem backend — tudo fica salvo no seu navegador e funciona offline (PWA).
 
 **Stack:** Vite + React + TypeScript + Tailwind CSS 4, Zustand (persistência em `localStorage`), lucide-react, date-fns (pt-BR), Vitest.
 
@@ -24,7 +24,7 @@ npm test           # testes das funções de data, streak, rotina, backup…
 
 | Atalho | Ação |
 | --- | --- |
-| `Ctrl/⌘ + K` | Busca global (tarefas, notas e metas) |
+| `Ctrl/⌘ + K` | Buscar tarefas |
 | `C` | Captura rápida para a Caixa de entrada |
 | Alça de uma tarefa + `↑` `↓` | Reordenar pelo teclado (também dá para arrastar) |
 
@@ -34,6 +34,8 @@ Os dados vivem só neste navegador. Para não perdê-los:
 
 1. **Ajustes › Exportar JSON** baixa `meu-dia-backup-AAAA-MM-DD.json`.
 2. Em outro aparelho (ou depois de limpar o navegador), **Ajustes › Importar dados** e escolha o arquivo. O app mostra um resumo e pede confirmação antes de sobrescrever.
+
+Os módulos Foco, Notas, Metas e Revisão semanal foram retirados da tela para simplificar (o código está no histórico do git).
 
 O arquivo tem `app`, `version` e `data`. Backups de versões anteriores do app são migrados automaticamente; backups de versões *mais novas* são recusados com uma mensagem.
 
@@ -58,7 +60,7 @@ Pela CLI: `npx vercel` (e `npx vercel --prod`).
 ```
 src/
   components/   interface compartilhada (layout, modal, busca, captura…)
-  features/     uma pasta por módulo: today, tasks, routine, habits, focus, notes, goals, review, settings
+  features/     uma pasta por tela: today, tasks, routine, habits, settings
   store/        estado (Zustand + persist), migrações, estado de UI
   lib/          funções puras: datas, streak, rotina, revisão, backup… (com testes *.test.ts)
   types/        Task, Habit, RoutineBlock, Note, Goal, FocusSession…

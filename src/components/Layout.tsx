@@ -1,8 +1,7 @@
-import { useEffect, type ReactNode } from 'react'
-import { MoreHorizontal, Moon, Plus, Search, Sun } from 'lucide-react'
-import { MOBILE_MAIN, NAV, SETTINGS_NAV, type NavItem } from './nav'
+import type { ReactNode } from 'react'
+import { Moon, Plus, Search, Settings, Sun } from 'lucide-react'
+import { NAV, SETTINGS_NAV, type NavItem } from './nav'
 import { NavLink } from './NavLink'
-import { Modal } from './ui'
 import { useRoute } from '../lib/useRoute'
 import { modKey } from '../lib/platform'
 import { toggleTheme } from '../lib/useTheme'
@@ -91,7 +90,7 @@ function Sidebar({ route }: { route: string }) {
   )
 }
 
-function MobileTop() {
+function MobileTop({ route }: { route: string }) {
   const { setSearchOpen, setCaptureOpen } = useUI()
   return (
     <div className="sticky top-0 z-30 flex items-center justify-between border-b border-line bg-bg/95 px-4 py-1.5 pt-[max(6px,env(safe-area-inset-top))] backdrop-blur md:hidden">
@@ -100,6 +99,9 @@ function MobileTop() {
         <button className="icon-btn" onClick={() => setSearchOpen(true)} aria-label="Buscar">
           <Search size={20} />
         </button>
+        <NavLink to="ajustes" className="icon-btn" current={route === 'ajustes'}>
+          <Settings size={20} aria-label="Ajustes" />
+        </NavLink>
         <button
           className="flex h-10 items-center gap-1.5 rounded-xl bg-accent px-3.5 text-sm font-bold text-accent-fg"
           onClick={() => setCaptureOpen(true)}
@@ -113,57 +115,23 @@ function MobileTop() {
 }
 
 function BottomNav({ route }: { route: string }) {
-  const { moreOpen, setMoreOpen } = useUI()
-  const main = NAV.filter((n) => MOBILE_MAIN.includes(n.id))
-  const more = [...NAV.filter((n) => !MOBILE_MAIN.includes(n.id)), SETTINGS_NAV]
-  const moreActive = more.some((n) => n.id === route)
-
-  useEffect(() => setMoreOpen(false), [route, setMoreOpen])
-
   const cls = (active: boolean) =>
     `relative flex min-h-[60px] flex-1 flex-col items-center justify-center gap-1 text-xs font-semibold transition-colors ${
       active ? 'text-accent' : 'text-muted active:text-ink'
     }`
-  const bar = (active: boolean) =>
-    active && <span className="absolute inset-x-5 top-0 h-0.5 rounded-b bg-accent" aria-hidden />
-
   return (
-    <>
-      <nav
-        aria-label="Principal"
-        className="fixed inset-x-0 bottom-0 z-30 flex border-t border-line bg-bg pb-[env(safe-area-inset-bottom)] md:hidden"
-      >
-        {main.map((n) => (
-          <NavLink key={n.id} to={n.id} current={route === n.id} className={cls(route === n.id)}>
-            {bar(route === n.id)}
-            <n.icon size={23} aria-hidden />
-            {n.label}
-          </NavLink>
-        ))}
-        <button className={cls(moreActive)} onClick={() => setMoreOpen(true)} aria-haspopup="dialog">
-          {bar(moreActive)}
-          <MoreHorizontal size={23} aria-hidden />
-          Mais
-        </button>
-      </nav>
-      <Modal open={moreOpen} onClose={() => setMoreOpen(false)} title="Mais">
-        <div className="grid grid-cols-1 gap-1">
-          {more.map((n) => (
-            <NavLink
-              key={n.id}
-              to={n.id}
-              current={route === n.id}
-              className={`flex min-h-14 items-center gap-3 rounded-xl px-3 text-base font-medium ${
-                route === n.id ? 'bg-surface-2 text-accent' : 'active:bg-surface-2'
-              }`}
-            >
-              <n.icon size={22} aria-hidden />
-              {n.label}
-            </NavLink>
-          ))}
-        </div>
-      </Modal>
-    </>
+    <nav
+      aria-label="Principal"
+      className="fixed inset-x-0 bottom-0 z-30 flex border-t border-line bg-bg pb-[env(safe-area-inset-bottom)] md:hidden"
+    >
+      {NAV.map((n) => (
+        <NavLink key={n.id} to={n.id} current={route === n.id} className={cls(route === n.id)}>
+          {route === n.id && <span className="absolute inset-x-5 top-0 h-0.5 rounded-b bg-accent" aria-hidden />}
+          <n.icon size={23} aria-hidden />
+          {n.label}
+        </NavLink>
+      ))}
+    </nav>
   )
 }
 
@@ -182,7 +150,7 @@ export function Layout({ children }: { children: ReactNode }) {
         Pular para o conteúdo
       </a>
       <Sidebar route={route} />
-      <MobileTop />
+      <MobileTop route={route} />
       <main
         id="conteudo"
         tabIndex={-1}

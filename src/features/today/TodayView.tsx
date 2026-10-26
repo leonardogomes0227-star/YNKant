@@ -1,8 +1,8 @@
 import { useMemo, useRef, useState } from 'react'
-import { CalendarClock, CheckSquare, Flame, Plus, Sparkles, Timer } from 'lucide-react'
+import { CalendarClock, CheckSquare, Flame, Plus, Sparkles, type LucideIcon } from 'lucide-react'
 import { NavLink } from '../../components/NavLink'
 import { EmptyState, ProgressBar, SectionTitle } from '../../components/ui'
-import { formatDuration, formatLong, greeting, nowMinutes, quoteOfDay, todayKey, weekStartKey, shiftKey } from '../../lib/dates'
+import { formatLong, greeting, nowMinutes, quoteOfDay, todayKey } from '../../lib/dates'
 import { blocksForDate, currentBlock, nextBlock } from '../../lib/routine'
 import { isScheduled, isDone } from '../../lib/streak'
 import { inView, isOverdue, byOrder } from '../../lib/tasks'
@@ -18,15 +18,17 @@ function Stat({
   value,
   detail,
   to,
+  className = '',
 }: {
-  icon: typeof Timer
+  className?: string
+  icon: LucideIcon
   label: string
   value: string
   detail?: string
   to: Parameters<typeof go>[0]
 }) {
   return (
-    <NavLink to={to} className="card metal block p-4 transition-colors hover:border-line-strong">
+    <NavLink to={to} className={`card metal block p-4 transition-colors hover:border-line-strong ${className}`}>
       <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted">
         <Icon size={14} className="text-accent" aria-hidden />
         {label}
@@ -44,9 +46,7 @@ export function TodayView() {
   const habits = useStore((s) => s.habits)
   const routine = useStore((s) => s.routine)
   const routineLog = useStore((s) => s.routineLog)
-  const sessions = useStore((s) => s.focusSessions)
   const name = useStore((s) => s.settings.name)
-  const reviews = useStore((s) => s.reviews)
   const addTask = useStore((s) => s.addTask)
   const toast = useUI((s) => s.toast)
   const [quick, setQuick] = useState('')
@@ -66,13 +66,9 @@ export function TodayView() {
   const next = nextBlock(dayBlocks, minutes)
   const blockDone = (routineLog[today] ?? []).length
 
-  const focusSeconds = sessions.filter((s) => s.date === today).reduce((sum, s) => sum + s.seconds, 0)
-
   const total = todayTasks.length + todayHabits.length
   const doneCount = doneToday.length + habitsDone
   const pct = total ? (doneCount / total) * 100 : 0
-
-  const weekPriorities = reviews[shiftKey(weekStartKey(today), -7)]?.priorities?.trim()
 
   const submitQuick = (e: React.FormEvent) => {
     e.preventDefault()
@@ -98,7 +94,7 @@ export function TodayView() {
         </p>
       </header>
 
-      <section aria-label="Resumo do dia" className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+      <section aria-label="Resumo do dia" className="grid grid-cols-2 gap-3 lg:grid-cols-3">
         <Stat icon={CheckSquare} label="Tarefas" value={`${doneToday.length}/${todayTasks.length}`} detail={overdue.length ? `${overdue.length} atrasada(s)` : 'feitas hoje'} to="tarefas" />
         <Stat icon={Flame} label="Hábitos" value={`${habitsDone}/${todayHabits.length}`} detail="concluídos hoje" to="habitos" />
         <Stat
@@ -115,8 +111,8 @@ export function TodayView() {
                   : 'sem blocos hoje'
           }
           to="rotina"
+          className="col-span-2 lg:col-span-1"
         />
-        <Stat icon={Timer} label="Foco hoje" value={formatDuration(focusSeconds)} detail={`${sessions.filter((s) => s.date === today).length} sessão(ões)`} to="foco" />
       </section>
 
       <section className="card metal mt-3 p-4" aria-label="Progresso do dia">
@@ -144,13 +140,6 @@ export function TodayView() {
           <span className="sr-only sm:hidden">Adicionar</span>
         </button>
       </form>
-
-      {weekPriorities && (
-        <section className="card mt-6 p-4" aria-label="Prioridades da semana">
-          <h2 className="mb-1.5 text-base">Prioridades da semana</h2>
-          <p className="whitespace-pre-line text-sm text-muted">{weekPriorities}</p>
-        </section>
-      )}
 
       <div className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-2">
         <section aria-label="Tarefas de hoje">

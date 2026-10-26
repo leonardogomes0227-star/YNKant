@@ -3,11 +3,11 @@ import { AlertCircle, CalendarDays, CheckCircle2, Inbox, Plus, Search, Sun, Tras
 import { ConfirmDialog, EmptyState, PageHeader } from '../../components/ui'
 import { formatShort, todayKey } from '../../lib/dates'
 import { matches } from '../../lib/search'
-import { PRIORITY_LABEL, byDateThenPriority, byOrder, inView, type TaskView } from '../../lib/tasks'
+import { byDateThenPriority, byOrder, inView, type TaskView } from '../../lib/tasks'
 import { useNow } from '../../lib/useNow'
 import { useStore } from '../../store/useStore'
 import { useUI } from '../../store/ui'
-import type { Priority, Task } from '../../types'
+import type { Task } from '../../types'
 import { TaskList } from './TaskList'
 
 const TABS: { id: TaskView; label: string }[] = [
@@ -50,7 +50,6 @@ export function TasksView() {
   const now = useNow(60_000)
   const today = todayKey(now)
   const tasks = useStore((s) => s.tasks)
-  const categories = useStore((s) => s.categories)
   const addTask = useStore((s) => s.addTask)
   const deleteTask = useStore((s) => s.deleteTask)
   const openItem = useUI((s) => s.openItem)
@@ -58,13 +57,11 @@ export function TasksView() {
 
   const [view, setView] = useState<TaskView>('inbox')
   const [q, setQ] = useState('')
-  const [cat, setCat] = useState('')
-  const [prio, setPrio] = useState<Priority | ''>('')
   const [quick, setQuick] = useState('')
   const [clearing, setClearing] = useState(false)
 
   const filtered = (t: Task) =>
-    (!cat || t.category === cat) && (!prio || t.priority === prio) && (!q.trim() || matches(`${t.title} ${t.description}`, q))
+    (!q.trim() || matches(`${t.title} ${t.description}`, q))
 
   const counts = useMemo(() => {
     const c = {} as Record<TaskView, number>
@@ -72,10 +69,10 @@ export function TasksView() {
     return c
   }, [tasks, today])
 
-  const list = useMemo(() => tasks.filter((t) => inView(t, view, today) && filtered(t)), [tasks, view, today, q, cat, prio]) // eslint-disable-line react-hooks/exhaustive-deps
+  const list = useMemo(() => tasks.filter((t) => inView(t, view, today) && filtered(t)), [tasks, view, today, q]) // eslint-disable-line react-hooks/exhaustive-deps
   const open = list.filter((t) => !t.done).sort(view === 'week' ? byDateThenPriority : byOrder)
   const doneList = list.filter((t) => t.done).sort((a, b) => (b.completedAt ?? '').localeCompare(a.completedAt ?? ''))
-  const hasFilter = !!(q.trim() || cat || prio)
+  const hasFilter = !!q.trim()
 
   const groups = useMemo(() => {
     if (view !== 'week') return []
@@ -118,23 +115,11 @@ export function TasksView() {
         ))}
       </div>
 
-      <div className="mb-4 grid grid-cols-2 gap-2 sm:grid-cols-[minmax(0,1fr)_auto_auto]">
-        <div className="relative col-span-2 sm:col-span-1">
+      <div className="mb-4">
+        <div className="relative">
           <Search size={16} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted" aria-hidden />
           <input className="input pl-9" type="search" placeholder="Buscar nas tarefas" aria-label="Buscar nas tarefas" value={q} onChange={(e) => setQ(e.target.value)} />
         </div>
-        <select className="input sm:w-44" aria-label="Filtrar por categoria" value={cat} onChange={(e) => setCat(e.target.value)}>
-          <option value="">Categoria: todas</option>
-          {categories.map((c) => (
-            <option key={c} value={c}>{c}</option>
-          ))}
-        </select>
-        <select className="input sm:w-40" aria-label="Filtrar por prioridade" value={prio} onChange={(e) => setPrio(e.target.value as Priority | '')}>
-          <option value="">Prioridade: todas</option>
-          {(['high', 'medium', 'low'] as Priority[]).map((p) => (
-            <option key={p} value={p}>{PRIORITY_LABEL[p]}</option>
-          ))}
-        </select>
       </div>
 
       {showQuick && (
@@ -154,8 +139,8 @@ export function TasksView() {
 
       {list.length === 0 ? (
         hasFilter ? (
-          <EmptyState icon={Search} title="Nenhuma tarefa com esses filtros" action={<button className="btn" onClick={() => { setQ(''); setCat(''); setPrio('') }}>Limpar filtros</button>}>
-            Tente outro termo ou remova a categoria e a prioridade selecionadas.
+          <EmptyState icon={Search} title="Nenhuma tarefa encontrada" action={<button className="btn" onClick={() => setQ('')}>Limpar busca</button>}>
+            Tente outro termo.
           </EmptyState>
         ) : (
           <EmptyState icon={empty.icon} title={empty.title}>

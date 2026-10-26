@@ -2,9 +2,9 @@ import { create } from 'zustand'
 import type { RouteId, Task } from '../types'
 
 /** `id: 'new'` abre o editor para criar um item novo. */
-export type OpenTarget = { kind: 'task' | 'note' | 'goal'; id: string; defaults?: Partial<Task> } | null
+export type OpenTarget = { kind: 'task'; id: string; defaults?: Partial<Task> } | null
 
-export const ROUTES: RouteId[] = ['hoje', 'tarefas', 'rotina', 'habitos', 'foco', 'notas', 'metas', 'revisao', 'ajustes']
+export const ROUTES: RouteId[] = ['hoje', 'tarefas', 'rotina', 'habitos', 'ajustes']
 
 export function parseRoute(hash: string): RouteId {
   const id = hash.replace(/^#\/?/, '').split(/[/?]/)[0] as RouteId
@@ -21,13 +21,11 @@ interface UI {
   route: RouteId
   searchOpen: boolean
   captureOpen: boolean
-  moreOpen: boolean
   /** Item a abrir assim que a tela de destino montar (vindo da busca global). */
   pendingOpen: OpenTarget
   toasts: Toast[]
   setSearchOpen: (v: boolean) => void
   setCaptureOpen: (v: boolean) => void
-  setMoreOpen: (v: boolean) => void
   openItem: (t: OpenTarget) => void
   toast: (text: string) => void
   dismissToast: (id: number) => void
@@ -39,12 +37,10 @@ export const useUI = create<UI>()((set) => ({
   route: parseRoute(typeof location === 'undefined' ? '' : location.hash),
   searchOpen: false,
   captureOpen: false,
-  moreOpen: false,
   pendingOpen: null,
   toasts: [],
   setSearchOpen: (searchOpen) => set({ searchOpen }),
   setCaptureOpen: (captureOpen) => set({ captureOpen }),
-  setMoreOpen: (moreOpen) => set({ moreOpen }),
   openItem: (pendingOpen) => set({ pendingOpen }),
   toast: (text) => {
     const id = ++toastSeq
