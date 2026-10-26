@@ -113,12 +113,12 @@ function HabitForm({ habit, onClose }: { habit?: Habit; onClose: () => void }) {
         <span className="label" id="h-days-l">Frequência</span>
         <div className="mb-2 flex flex-wrap gap-1.5">
           {PRESETS.map((p) => (
-            <button type="button" key={p.label} className={`chip cursor-pointer ${same(days, p.days) ? 'chip-accent' : ''}`} onClick={() => setDays(p.days)}>
+            <button type="button" key={p.label} className={`chip min-h-8 cursor-pointer px-3 ${same(days, p.days) ? 'chip-accent' : ''}`} onClick={() => setDays(p.days)}>
               {p.label}
             </button>
           ))}
         </div>
-        <div className="flex flex-wrap gap-1.5" role="group" aria-labelledby="h-days-l">
+        <div className="grid grid-cols-7 gap-1.5" role="group" aria-labelledby="h-days-l">
           {WEEKDAY_ORDER.map((d) => (
             <button
               type="button"
@@ -126,7 +126,7 @@ function HabitForm({ habit, onClose }: { habit?: Habit; onClose: () => void }) {
               aria-pressed={days.includes(d)}
               aria-label={WEEKDAY_LONG[d]}
               onClick={() => toggle(d)}
-              className={`grid h-10 w-12 place-items-center rounded-lg border text-sm font-semibold capitalize transition-colors ${
+              className={`grid h-10 w-full place-items-center rounded-lg border text-sm font-semibold capitalize transition-colors ${
                 days.includes(d) ? 'border-transparent bg-accent text-accent-fg' : 'border-line-strong text-muted hover:text-ink'
               }`}
             >
