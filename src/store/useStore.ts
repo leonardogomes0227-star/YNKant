@@ -1,0 +1,418 @@
+import { create } from 'zustand'
+import { persist } from 'zustand/middleware'
+import type {
+  AppData,
+  DateKey,
+  FocusSession,
+  Goal,
+  Habit,
+  JournalEntry,
+  Note,
+  RoutineBlock,
+  Settings,
+  Task,
+  TimerMode,
+  WeeklyReview,
+} from '../types'
+import { nextOccurrence, todayKey } from '../lib/dates'
+import { uid } from '../lib/id'
+import { blockDefaults, emptyData, freshTimer, goalDefaults, habitDefaults, noteDefaults, taskDefaults } from './defaults'
+import { DATA_VERSION, migrate, normalizeData } from './migrations'
+import { createSampleData } from './samples'
+
+export function modeSeconds(s: Settings, mode: TimerMode): number {
+  const min = mode === 'focus' ? s.focusMinutes : mode === 'short' ? s.shortBreakMinutes : s.longBreakMinutes
+  return Math.max(1, min) * 60
+}
+
+type NewTask = Partial<Omit<Task, 'id' | 'createdAt' | 'order'>> & { title: string }
+
+interface Actions {
+  addTask: (t: NewTask) => string
+  updateTask: (id: string, patch: Partial<Task>) => void
+  deleteTask: (id: string) => void
+  toggleTask: (id: string) => void
+  reorderTasks: (orderedIds: string[]) => void
+
+  addHabit: (h: Partial<Habit> & { name: string }) => string
+  updateHabit: (id: string, patch: Partial<Habit>) => void
+  deleteHabit: (id: string) => void
+  setHabitValue: (id: string, date: DateKey, value: number) => void
+
+  addBlock: (b: Partial<RoutineBlock> & { title: string }) => string
+  updateBlock: (id: string, patch: Partial<RoutineBlock>) => void
+  deleteBlock: (id: string) => void
+  duplicateBlock: (id: string) => void
+  copyDay: (from: number, to: number[]) => void
+  toggleBlockDone: (date: DateKey, id: string) => void
+
+  addNote: (n?: Partial<Note>) => string
+  updateNote: (id: string, patch: Partial<Note>) => void
+  deleteNote: (id: string) => void
+  setJournal: (date: DateKey, patch: Partial<JournalEntry>) => void
+
+  addGoal: (g: Partial<Goal> & { title: string }) => string
+  updateGoal: (id: string, patch: Partial<Goal>) => void
+  deleteGoal: (id: string) => void
+
+  setReview: (week: DateKey, patch: Partial<WeeklyReview>) => void
+  addCategory: (name: string) => void
+  updateSettings: (patch: Partial<Settings>) => void
+
+  startTimer: () => void
+  pauseTimer: () => void
+  resetTimer: () => void
+  setTimerMode: (mode: TimerMode) => void
+  setTimerTask: (id: string | null) => void
+  /** Encerra o ciclo atual. `natural` = o tempo acabou sozinho. */
+  finishTimer: (natural: boolean) => void
+
+  clearSamples: () => void
+  replaceAll: (data: AppData) => void
+}
+
+export type Store = AppData & Actions
+
+const DATA_KEYS: (keyof AppData)[] = [
+  'tasks',
+  'habits',
+  'routine',
+  'routineLog',
+  'notes',
+  'journal',
+  'goals',
+  'focusSessions',
+  'reviews',
+  'categories',
+  'settings',
+  'timer',
+  'samplesLoaded',
+]
+
+export function pickData(s: AppData): AppData {
+  return Object.fromEntries(DATA_KEYS.map((k) => [k, s[k]])) as unknown as AppData
+}
+
+/** Edição manual tira o selo de exemplo. */
+const owned = <T extends { sample?: boolean }>(patch: Partial<T>): Partial<T> => ({
+  ...patch,
+  sample: undefined,
+})
+
+const nowIso = () => new Date().toISOString()
+const maxOrder = (tasks: Task[]) => tasks.reduce((m, t) => Math.max(m, t.order), 0)
+
+export const useStore = create<Store>()(
+  persist(
+    (set, get) => ({
+      ...createSampleData(),
+
+      // ---------- tarefas ----------
+      addTask: (t) => {
+        const id = uid()
+        set((s) => ({
+          tasks: [
+            ...s.tasks,
+            { ...taskDefaults, ...t, id, createdAt: nowIso(), order: maxOrder(s.tasks) + 1 },
+          ],
+        }))
+        return id
+      },
+      updateTask: (id, patch) =>
+        set((s) => ({ tasks: s.tasks.map((t) => (t.id === id ? { ...t, ...owned<Task>(patch) } : t)) })),
+      deleteTask: (id) =>
+        set((s) => ({
+          tasks: s.tasks.filter((t) => t.id !== id),
+          goals: s.goals.map((g) => ({ ...g, taskIds: g.taskIds.filter((x) => x !== id) })),
+          timer: s.timer.taskId === id ? { ...s.timer, taskId: null } : s.timer,
+        })),
+      toggleTask: (id) =>
+        set((s) => {
+          const t = s.tasks.find((x) => x.id === id)
+          if (!t) return {}
+          if (t.done) {
+            return {
+              tasks: s.tasks.map((x) => (x.id === id ? { ...x, done: false, completedAt: null } : x)),
+            }
+          }
+          const stamp = nowIso()
+          if (t.repeat === 'none') {
+            return {
+              tasks: s.tasks.map((x) => (x.id === id ? { ...x, done: true, completedAt: stamp } : x)),
+            }
+          }
+          // recorrente: registra a conclusão como cópia e reagenda a original
+          const today = todayKey()
+          let next = nextOccurrence(t.dueDate ?? today, t.repeat)
+          while (next <= today) next = nextOccurrence(next, t.repeat)
+          const record: Task = {
+            ...t,
+            id: uid(),
+            repeat: 'none',
+            done: true,
+            completedAt: stamp,
+            order: maxOrder(s.tasks) + 1,
+          }
+          return {
+            tasks: [
+              ...s.tasks.map((x) =>
+                x.id === id
+                  ? { ...x, dueDate: next, subtasks: x.subtasks.map((st) => ({ ...st, done: false })) }
+                  : x,
+              ),
+              record,
+            ],
+          }
+        }),
+      reorderTasks: (orderedIds) =>
+        set((s) => {
+          const slots = s.tasks
+            .filter((t) => orderedIds.includes(t.id))
+            .map((t) => t.order)
+            .sort((a, b) => a - b)
+          const orderOf = new Map(orderedIds.map((id, i) => [id, slots[i]]))
+          return { tasks: s.tasks.map((t) => (orderOf.has(t.id) ? { ...t, order: orderOf.get(t.id)! } : t)) }
+        }),
+
+      // ---------- hábitos ----------
+      addHabit: (h) => {
+        const id = uid()
+        set((s) => ({ habits: [...s.habits, { ...habitDefaults, createdAt: todayKey(), ...h, id }] }))
+        return id
+      },
+      updateHabit: (id, patch) =>
+        set((s) => ({ habits: s.habits.map((h) => (h.id === id ? { ...h, ...owned<Habit>(patch) } : h)) })),
+      deleteHabit: (id) =>
+        set((s) => ({
+          habits: s.habits.filter((h) => h.id !== id),
+          goals: s.goals.map((g) => ({ ...g, habitIds: g.habitIds.filter((x) => x !== id) })),
+        })),
+      setHabitValue: (id, date, value) =>
+        set((s) => ({
+          habits: s.habits.map((h) => {
+            if (h.id !== id) return h
+            const log = { ...h.log }
+            if (value <= 0) delete log[date]
+            else log[date] = value
+            return { ...h, log }
+          }),
+        })),
+
+      // ---------- rotina ----------
+      addBlock: (b) => {
+        const id = uid()
+        set((s) => ({ routine: [...s.routine, { ...blockDefaults, ...b, id }] }))
+        return id
+      },
+      updateBlock: (id, patch) =>
+        set((s) => ({ routine: s.routine.map((b) => (b.id === id ? { ...b, ...owned<RoutineBlock>(patch) } : b)) })),
+      deleteBlock: (id) => set((s) => ({ routine: s.routine.filter((b) => b.id !== id) })),
+      duplicateBlock: (id) =>
+        set((s) => {
+          const b = s.routine.find((x) => x.id === id)
+          if (!b) return {}
+          return { routine: [...s.routine, { ...b, id: uid(), title: `${b.title} (cópia)`, sample: undefined }] }
+        }),
+      copyDay: (from, to) =>
+        set((s) => {
+          const targets = to.filter((d) => d !== from)
+          const source = new Set(s.routine.filter((b) => b.days.includes(from)).map((b) => b.id))
+          const routine = s.routine
+            // limpa os dias de destino (a cópia substitui o que havia)
+            .map((b) =>
+              source.has(b.id) ? b : { ...b, days: b.days.filter((d) => !targets.includes(d)) },
+            )
+            .filter((b) => b.days.length > 0)
+            .map((b) =>
+              source.has(b.id) ? { ...b, days: [...new Set([...b.days, ...targets])].sort() } : b,
+            )
+          return { routine }
+        }),
+      toggleBlockDone: (date, id) =>
+        set((s) => {
+          const cur = s.routineLog[date] ?? []
+          const next = cur.includes(id) ? cur.filter((x) => x !== id) : [...cur, id]
+          return { routineLog: { ...s.routineLog, [date]: next } }
+        }),
+
+      // ---------- notas ----------
+      addNote: (n = {}) => {
+        const id = uid()
+        const stamp = nowIso()
+        set((s) => ({ notes: [{ ...noteDefaults, ...n, id, createdAt: stamp, updatedAt: stamp }, ...s.notes] }))
+        return id
+      },
+      updateNote: (id, patch) =>
+        set((s) => ({
+          notes: s.notes.map((n) => (n.id === id ? { ...n, ...owned<Note>(patch), updatedAt: nowIso() } : n)),
+        })),
+      deleteNote: (id) => set((s) => ({ notes: s.notes.filter((n) => n.id !== id) })),
+      setJournal: (date, patch) =>
+        set((s) => {
+          const base: JournalEntry = s.journal[date] ?? { mood: null, how: '', good: ['', '', ''], improve: '' }
+          return { journal: { ...s.journal, [date]: { ...base, ...patch, sample: undefined } } }
+        }),
+
+      // ---------- metas ----------
+      addGoal: (g) => {
+        const id = uid()
+        set((s) => ({ goals: [...s.goals, { ...goalDefaults, ...g, id, createdAt: nowIso() }] }))
+        return id
+      },
+      updateGoal: (id, patch) =>
+        set((s) => ({ goals: s.goals.map((g) => (g.id === id ? { ...g, ...owned<Goal>(patch) } : g)) })),
+      deleteGoal: (id) =>
+        set((s) => ({
+          goals: s.goals.filter((g) => g.id !== id),
+        })),
+
+      // ---------- revisão, categorias, ajustes ----------
+      setReview: (week, patch) =>
+        set((s) => ({
+          reviews: { ...s.reviews, [week]: { ...(s.reviews[week] ?? { priorities: '', reflection: '' }), ...patch } },
+        })),
+      addCategory: (name) =>
+        set((s) => {
+          const n = name.trim()
+          if (!n || s.categories.some((c) => c.toLowerCase() === n.toLowerCase())) return {}
+          return { categories: [...s.categories, n] }
+        }),
+      updateSettings: (patch) =>
+        set((s) => {
+          const settings = { ...s.settings, ...patch }
+          const idle = !s.timer.running && s.timer.startedAt === null
+          return {
+            settings,
+            timer: idle ? { ...s.timer, remaining: modeSeconds(settings, s.timer.mode) } : s.timer,
+          }
+        }),
+
+      // ---------- foco ----------
+      startTimer: () =>
+        set((s) => {
+          const t = s.timer
+          if (t.running) return {}
+          const remaining = t.remaining > 0 ? t.remaining : modeSeconds(s.settings, t.mode)
+          const now = Date.now()
+          return {
+            timer: { ...t, running: true, remaining, endsAt: now + remaining * 1000, startedAt: t.startedAt ?? now },
+          }
+        }),
+      pauseTimer: () =>
+        set((s) => {
+          const t = s.timer
+          if (!t.running || t.endsAt === null) return {}
+          return {
+            timer: { ...t, running: false, endsAt: null, remaining: Math.max(1, Math.ceil((t.endsAt - Date.now()) / 1000)) },
+          }
+        }),
+      resetTimer: () =>
+        set((s) => ({
+          timer: { ...s.timer, running: false, endsAt: null, startedAt: null, remaining: modeSeconds(s.settings, s.timer.mode) },
+        })),
+      setTimerMode: (mode) =>
+        set((s) => ({
+          timer: { ...s.timer, mode, running: false, endsAt: null, startedAt: null, remaining: modeSeconds(s.settings, mode) },
+        })),
+      setTimerTask: (id) => set((s) => ({ timer: { ...s.timer, taskId: id } })),
+      finishTimer: (natural) => {
+        const s = get()
+        const t = s.timer
+        const total = modeSeconds(s.settings, t.mode)
+        const left = t.running && t.endsAt !== null ? Math.max(0, Math.ceil((t.endsAt - Date.now()) / 1000)) : t.remaining
+        const seconds = natural ? total : Math.max(0, total - left)
+
+        let sessions: FocusSession[] = s.focusSessions
+        let cycles = t.cycles
+        let nextMode: TimerMode = 'focus'
+        if (t.mode === 'focus') {
+          if (seconds >= 60) {
+            sessions = [
+              ...sessions,
+              {
+                id: uid(),
+                startedAt: new Date(t.startedAt ?? Date.now() - seconds * 1000).toISOString(),
+                date: todayKey(),
+                seconds,
+                taskId: t.taskId,
+              },
+            ]
+            cycles += 1
+          }
+          nextMode = cycles >= s.settings.longBreakEvery ? 'long' : 'short'
+        } else if (t.mode === 'long') {
+          cycles = 0
+        }
+        set({
+          focusSessions: sessions,
+          timer: {
+            ...t,
+            mode: nextMode,
+            running: false,
+            endsAt: null,
+            startedAt: null,
+            remaining: modeSeconds(s.settings, nextMode),
+            cycles,
+          },
+        })
+      },
+
+      // ---------- dados ----------
+      clearSamples: () =>
+        set((s) => {
+          const keep = <T extends { sample?: boolean }>(a: T[]) => a.filter((x) => !x.sample)
+          const gone = {
+            tasks: new Set(s.tasks.filter((t) => t.sample).map((t) => t.id)),
+            habits: new Set(s.habits.filter((h) => h.sample).map((h) => h.id)),
+            blocks: new Set(s.routine.filter((b) => b.sample).map((b) => b.id)),
+          }
+          const routineLog = Object.fromEntries(
+            Object.entries(s.routineLog)
+              .map(([k, ids]) => [k, ids.filter((id) => !gone.blocks.has(id))] as const)
+              .filter(([, ids]) => ids.length > 0),
+          )
+          return {
+            tasks: keep(s.tasks),
+            habits: keep(s.habits),
+            routine: keep(s.routine),
+            routineLog,
+            notes: keep(s.notes),
+            goals: keep(s.goals).map((g) => ({
+              ...g,
+              taskIds: g.taskIds.filter((id) => !gone.tasks.has(id)),
+              habitIds: g.habitIds.filter((id) => !gone.habits.has(id)),
+            })),
+            focusSessions: keep(s.focusSessions),
+            journal: Object.fromEntries(Object.entries(s.journal).filter(([, j]) => !j.sample)),
+            timer: s.timer.taskId && gone.tasks.has(s.timer.taskId) ? { ...s.timer, taskId: null } : s.timer,
+            samplesLoaded: true,
+          }
+        }),
+      replaceAll: (data) => set({ ...data }),
+    }),
+    {
+      name: 'meu-dia',
+      version: DATA_VERSION,
+      partialize: (s) => pickData(s) as Store,
+      migrate: (persisted, version) => normalizeData(migrate(persisted, version)) as Store,
+      // sem nada salvo (primeiro acesso) o zustand chama merge com `undefined`:
+      // mantém o estado inicial, que já traz os exemplos.
+      merge: (persisted, current) =>
+        persisted && typeof persisted === 'object' ? { ...current, ...normalizeData(persisted) } : current,
+    },
+  ),
+)
+
+export function hasSamples(s: AppData): boolean {
+  return (
+    s.tasks.some((x) => x.sample) ||
+    s.habits.some((x) => x.sample) ||
+    s.routine.some((x) => x.sample) ||
+    s.notes.some((x) => x.sample) ||
+    s.goals.some((x) => x.sample) ||
+    s.focusSessions.some((x) => x.sample) ||
+    Object.values(s.journal).some((j) => j.sample)
+  )
+}
+
+export { emptyData, freshTimer }
