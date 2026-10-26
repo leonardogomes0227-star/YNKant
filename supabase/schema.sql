@@ -9,6 +9,11 @@ create table if not exists public.app_data (
 
 alter table public.app_data enable row level security;
 
+-- se você rodar este script de novo, apaga as regras antigas antes de recriar
+drop policy if exists "ler os proprios dados" on public.app_data;
+drop policy if exists "criar os proprios dados" on public.app_data;
+drop policy if exists "atualizar os proprios dados" on public.app_data;
+
 -- cada pessoa só enxerga e altera os próprios dados
 create policy "ler os proprios dados"
   on public.app_data for select

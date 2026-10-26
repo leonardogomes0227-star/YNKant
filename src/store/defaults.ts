@@ -20,6 +20,8 @@ export const defaultSettings: Settings = {
   longBreakMinutes: 15,
   longBreakEvery: 4,
   sound: true,
+  remindTasks: true,
+  remindBlocks: false,
 }
 
 export function freshTimer(settings: Settings = defaultSettings): TimerState {
@@ -43,6 +45,8 @@ export function emptyData(): AppData {
     notes: [],
     journal: {},
     goals: [],
+    expenses: [],
+    shopping: [],
     focusSessions: [],
     reviews: {},
     categories: [...DEFAULT_CATEGORIES],
@@ -56,6 +60,7 @@ export function emptyData(): AppData {
 export const taskDefaults: Omit<Task, 'id' | 'title'> = {
   description: '',
   dueDate: null,
+  time: null,
   priority: 'medium',
   category: '',
   subtasks: [],

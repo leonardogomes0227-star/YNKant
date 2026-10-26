@@ -8,6 +8,7 @@ const base: Task = {
   title: 't',
   description: '',
   dueDate: null,
+  time: null,
   priority: 'medium',
   category: '',
   subtasks: [],

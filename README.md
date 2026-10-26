@@ -1,6 +1,6 @@
 # Meu Dia
 
-Organizador pessoal simples para o dia a dia, com o essencial: **Hoje**, **Tarefas**, **Rotina** (blocos de horário) e **Hábitos**. Sem login e sem backend — tudo fica salvo no seu navegador e funciona offline (PWA).
+Organizador pessoal simples para o dia a dia, com o essencial: **Hoje**, **Tarefas** (com horário e lembrete), **Rotina** (blocos de horário) e **Hábitos**, mais as ferramentas do menu *Mais*: Foco, Notas, Metas, Gastos, Compras e Revisão da semana. Sem login e sem backend — tudo fica salvo no seu navegador e funciona offline (PWA).
 
 **Stack:** Vite + React + TypeScript + Tailwind CSS 4, Zustand (persistência em `localStorage`), lucide-react, date-fns (pt-BR), Vitest.
 
@@ -47,8 +47,6 @@ Os dados vivem só neste navegador. Para não perdê-los:
 
 1. **Ajustes › Exportar JSON** baixa `meu-dia-backup-AAAA-MM-DD.json`.
 2. Em outro aparelho (ou depois de limpar o navegador), **Ajustes › Importar dados** e escolha o arquivo. O app mostra um resumo e pede confirmação antes de sobrescrever.
-
-Os módulos Foco, Notas, Metas e Revisão semanal foram retirados da tela para simplificar (o código está no histórico do git).
 
 O arquivo tem `app`, `version` e `data`. Backups de versões anteriores do app são migrados automaticamente; backups de versões *mais novas* são recusados com uma mensagem.
 

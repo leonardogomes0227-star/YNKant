@@ -3,6 +3,8 @@ import {
   CalendarClock,
   CheckSquare,
   Flame,
+  ShoppingCart,
+  Wallet,
   NotebookPen,
   Settings,
   Sun,
@@ -33,6 +35,8 @@ export const EXTRA: NavItem[] = [
   { id: 'foco', label: 'Foco', icon: Timer, hint: 'Cronômetro para estudar ou trabalhar sem distração' },
   { id: 'notas', label: 'Notas', icon: NotebookPen, hint: 'Anotações rápidas e diário do dia' },
   { id: 'metas', label: 'Metas', icon: Target, hint: 'Objetivos maiores, com prazo e etapas' },
+  { id: 'gastos', label: 'Gastos', icon: Wallet, hint: 'Anote o que gastou e veja o total do mês' },
+  { id: 'compras', label: 'Compras', icon: ShoppingCart, hint: 'Lista de compras para riscar no mercado' },
   { id: 'revisao', label: 'Revisão da semana', icon: BarChart3, hint: 'Veja o que você fez e planeje a próxima' },
 ]
 

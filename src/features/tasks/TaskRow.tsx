@@ -1,4 +1,4 @@
-import { CalendarDays, GripVertical, ListChecks, Repeat } from 'lucide-react'
+import { CalendarDays, Clock, GripVertical, ListChecks, Repeat } from 'lucide-react'
 import { CheckCircle } from '../../components/ui'
 import { PRIORITY_LABEL, dueLabel, isOverdue, subtaskProgress } from '../../lib/tasks'
 import type { Task } from '../../types'
@@ -57,6 +57,12 @@ export function TaskRow({
             <span className={`chip ${overdue ? 'chip-danger' : ''}`}>
               <CalendarDays size={12} aria-hidden />
               {dueLabel(task.dueDate, today)}
+            </span>
+          )}
+          {task.time && (
+            <span className="chip chip-accent">
+              <Clock size={12} aria-hidden />
+              {task.time}
             </span>
           )}
           {task.priority === 'high' && <span className="chip chip-accent">Prioridade alta</span>}

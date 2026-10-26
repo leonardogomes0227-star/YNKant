@@ -4,12 +4,14 @@ import type {
   AppData,
   DateKey,
   FocusSession,
+  Expense,
   Goal,
   Habit,
   JournalEntry,
   Note,
   RoutineBlock,
   Settings,
+  ShopItem,
   Task,
   TimerMode,
   WeeklyReview,
@@ -57,6 +59,13 @@ interface Actions {
   toggleMilestone: (goalId: string, milestoneId: string) => void
 
   setReview: (week: DateKey, patch: Partial<WeeklyReview>) => void
+  addExpense: (e: Omit<Expense, 'id' | 'createdAt'>) => void
+  updateExpense: (id: string, patch: Partial<Expense>) => void
+  deleteExpense: (id: string) => void
+  addShopItem: (name: string) => void
+  toggleShopItem: (id: string) => void
+  deleteShopItem: (id: string) => void
+  clearBoughtItems: () => void
   addCategory: (name: string) => void
   updateSettings: (patch: Partial<Settings>) => void
 
@@ -82,6 +91,8 @@ const DATA_KEYS: (keyof AppData)[] = [
   'notes',
   'journal',
   'goals',
+  'expenses',
+  'shopping',
   'focusSessions',
   'reviews',
   'categories',
@@ -256,6 +267,22 @@ export const useStore = create<Store>()(
         })),
 
       // ---------- revisão, categorias, ajustes ----------
+      addExpense: (e) =>
+        set((s) => ({ expenses: [...s.expenses, { ...e, id: uid(), createdAt: nowIso() }] })),
+      updateExpense: (id, patch) =>
+        set((s) => ({ expenses: s.expenses.map((e) => (e.id === id ? { ...e, ...patch } : e)) })),
+      deleteExpense: (id) => set((s) => ({ expenses: s.expenses.filter((e) => e.id !== id) })),
+      addShopItem: (name) => {
+        const n = name.trim()
+        if (!n) return
+        const item: ShopItem = { id: uid(), name: n, done: false, createdAt: nowIso() }
+        set((s) => ({ shopping: [...s.shopping, item] }))
+      },
+      toggleShopItem: (id) =>
+        set((s) => ({ shopping: s.shopping.map((i) => (i.id === id ? { ...i, done: !i.done } : i)) })),
+      deleteShopItem: (id) => set((s) => ({ shopping: s.shopping.filter((i) => i.id !== id) })),
+      clearBoughtItems: () => set((s) => ({ shopping: s.shopping.filter((i) => !i.done) })),
+
       setReview: (week, patch) =>
         set((s) => ({
           reviews: { ...s.reviews, [week]: { ...(s.reviews[week] ?? { priorities: '', reflection: '' }), ...patch } },

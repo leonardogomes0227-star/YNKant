@@ -17,6 +17,8 @@ export interface Task {
   title: string
   description: string
   dueDate: DateKey | null
+  /** Horário opcional (HH:mm): a tarefa gera um lembrete nesse horário. */
+  time: TimeStr | null
   priority: Priority
   category: string
   subtasks: Subtask[]
@@ -99,6 +101,24 @@ export interface FocusSession {
   taskId: string | null
 }
 
+export interface Expense {
+  id: string
+  type: 'out' | 'in'
+  /** Valor em reais (positivo). */
+  amount: number
+  category: string
+  note: string
+  date: DateKey
+  createdAt: string
+}
+
+export interface ShopItem {
+  id: string
+  name: string
+  done: boolean
+  createdAt: string
+}
+
 export interface WeeklyReview {
   priorities: string
   reflection: string
@@ -114,6 +134,10 @@ export interface Settings {
   longBreakMinutes: number
   longBreakEvery: number
   sound: boolean
+  /** Avisar no horário das tarefas com hora marcada. */
+  remindTasks: boolean
+  /** Avisar quando um bloco da rotina começa. */
+  remindBlocks: boolean
 }
 
 export type TimerMode = 'focus' | 'short' | 'long'
@@ -141,6 +165,8 @@ export interface AppData {
   notes: Note[]
   journal: Record<DateKey, JournalEntry>
   goals: Goal[]
+  expenses: Expense[]
+  shopping: ShopItem[]
   focusSessions: FocusSession[]
   reviews: Record<DateKey, WeeklyReview>
   categories: string[]
@@ -148,4 +174,4 @@ export interface AppData {
   timer: TimerState
 }
 
-export type RouteId = 'hoje' | 'tarefas' | 'rotina' | 'habitos' | 'foco' | 'notas' | 'metas' | 'revisao' | 'ajustes'
+export type RouteId = 'hoje' | 'tarefas' | 'rotina' | 'habitos' | 'foco' | 'notas' | 'metas' | 'revisao' | 'gastos' | 'compras' | 'ajustes'

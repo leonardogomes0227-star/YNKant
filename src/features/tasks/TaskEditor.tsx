@@ -3,6 +3,7 @@ import { Plus, Trash2 } from 'lucide-react'
 import { DateField } from '../../components/DateField'
 import { ConfirmDialog, Field, Modal } from '../../components/ui'
 import { uid } from '../../lib/id'
+import { todayKey } from '../../lib/dates'
 import { PRIORITY_LABEL } from '../../lib/tasks'
 import { useStore } from '../../store/useStore'
 import { useUI } from '../../store/ui'
@@ -71,6 +72,7 @@ function TaskForm({ task, defaults, onClose }: { task?: Task; defaults?: Partial
   const [dueDate, setDueDate] = useState(init.dueDate ?? '')
   const [priority, setPriority] = useState<Priority>(init.priority ?? 'medium')
   const [category, setCategory] = useState(init.category ?? '')
+  const [time, setTime] = useState(init.time ?? '')
   const [repeat, setRepeat] = useState<Repeat>(init.repeat ?? 'none')
   const [subtasks, setSubtasks] = useState<Subtask[]>(init.subtasks ?? [])
   const [newSub, setNewSub] = useState('')
@@ -89,15 +91,17 @@ function TaskForm({ task, defaults, onClose }: { task?: Task; defaults?: Partial
     const pendingSub = newSub.trim()
     const subs = pendingSub ? [...subtasks, { id: uid(), title: pendingSub, done: false }] : subtasks
     const cat = category.trim()
+    const date = dueDate || (time ? todayKey() : '')
     if (cat) addCategory(cat)
     const data = {
       title: title.trim(),
       description: description.trim(),
-      dueDate: dueDate || null,
+      dueDate: date || null,
+      time: time || null,
       priority,
       category: cat,
       // recorrência exige uma data de referência
-      repeat: repeat !== 'none' && !dueDate ? 'none' : repeat,
+      repeat: repeat !== 'none' && !date ? 'none' : repeat,
       subtasks: subs,
     }
     if (task) updateTask(task.id, data)
@@ -124,6 +128,9 @@ function TaskForm({ task, defaults, onClose }: { task?: Task; defaults?: Partial
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <Field label="Data" htmlFor="t-date" hint="Pode deixar em branco. Formato: dia/mês/ano.">
           <DateField id="t-date" value={dueDate} onChange={setDueDate} onValidity={setDateOk} />
+        </Field>
+        <Field label="Horário (opcional)" htmlFor="t-time" hint="O app avisa nesse horário, com ele aberto.">
+          <input id="t-time" type="time" className="input" value={time} onChange={(e) => setTime(e.target.value)} />
         </Field>
         <Field label="Repetição" htmlFor="t-repeat" hint={repeat !== 'none' && !dueDate ? 'Escolha uma data para repetir.' : undefined}>
           <select id="t-repeat" className="input" value={repeat} onChange={(e) => setRepeat(e.target.value as Repeat)}>

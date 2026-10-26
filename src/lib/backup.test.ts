@@ -7,7 +7,7 @@ describe('backup', () => {
   it('exporta e importa sem perder dados (ida e volta)', () => {
     const data = emptyData()
     data.tasks.push({
-      id: 't1', title: 'Teste', description: '', dueDate: '2026-10-26', priority: 'high', category: 'Casa',
+      id: 't1', title: 'Teste', description: '', dueDate: '2026-10-26', time: null, priority: 'high', category: 'Casa',
       subtasks: [{ id: 's', title: 'x', done: true }], repeat: 'weekly', done: false, completedAt: null, order: 1, createdAt: 'x',
     })
     data.journal['2026-10-26'] = { mood: 4, how: 'ok', good: ['a', 'b', 'c'], improve: 'd' }

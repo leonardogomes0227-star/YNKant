@@ -7,7 +7,7 @@ const week = weekKeys('2026-10-28') // 26/10 a 01/11
 const today = '2026-10-28'
 
 const task = (id: string, completedAt: string | null): Task => ({
-  id, title: id, description: '', dueDate: null, priority: 'medium', category: '', subtasks: [],
+  id, title: id, description: '', dueDate: null, time: null, priority: 'medium', category: '', subtasks: [],
   repeat: 'none', done: completedAt !== null, completedAt, order: 0, createdAt: '',
 })
 const habit: Habit = {

@@ -4,6 +4,9 @@ import { LoginScreen } from './components/LoginScreen'
 import { QuickCaptureDialog } from './components/QuickCapture'
 import { SearchDialog } from './components/SearchDialog'
 import { Toasts } from './components/ui'
+import { ExpensesView } from './features/expenses/ExpensesView'
+import { ShoppingView } from './features/shopping/ShoppingView'
+import { useReminders } from './features/reminders/useReminders'
 import { useFocusTicker } from './features/focus/useFocusTicker'
 import { FocusView } from './features/focus/FocusView'
 import { NotesView } from './features/notes/NotesView'
@@ -32,6 +35,8 @@ const VIEWS: Record<RouteId, ComponentType> = {
   notas: NotesView,
   metas: GoalsView,
   revisao: ReviewView,
+  gastos: ExpensesView,
+  compras: ShoppingView,
   ajustes: SettingsView,
 }
 
@@ -45,6 +50,7 @@ export default function App() {
   const { toasts, dismissToast, setSearchOpen, setCaptureOpen } = useUI()
   useThemeEffect()
   useFocusTicker()
+  useReminders()
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {

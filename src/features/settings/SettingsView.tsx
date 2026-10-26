@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react'
-import { Download, Smartphone, Trash2, Upload } from 'lucide-react'
+import { Bell, Download, Smartphone, Trash2, Upload } from 'lucide-react'
 import { ConfirmDialog, PageHeader, SectionTitle } from '../../components/ui'
 import { dataCounts, downloadBackup, parseBackup } from '../../lib/backup'
 import { modKey } from '../../lib/platform'
@@ -31,6 +31,7 @@ export function SettingsView() {
   const install = useInstall()
   const cloud = useCloud()
   const [leaving, setLeaving] = useState(false)
+  const [perm, setPerm] = useState<NotificationPermission | 'unsupported'>(typeof Notification === 'undefined' ? 'unsupported' : Notification.permission)
   const [leaveError, setLeaveError] = useState('')
   const fileRef = useRef<HTMLInputElement>(null)
   const [incoming, setIncoming] = useState<AppData | null>(null)
@@ -81,6 +82,39 @@ export function SettingsView() {
             <button className="btn" onClick={() => void install()}><Smartphone size={16} aria-hidden /> Instalar</button>
           </Row>
         )}
+      </section>
+
+      <section className="mt-8" aria-label="Avisos">
+        <SectionTitle>Avisos</SectionTitle>
+        <div className="card px-5">
+          <Row
+            title="Avisar no horário"
+            desc="Quando uma tarefa tem horário, o app te avisa nele. Funciona com o app aberto (ou instalado e em segundo plano)."
+          >
+            <input type="checkbox" className="size-5 accent-[var(--accent)]" aria-label="Avisar tarefas com horário" checked={settings.remindTasks} onChange={(e) => updateSettings({ remindTasks: e.target.checked })} />
+          </Row>
+          <Row title="Avisar quando um bloco da rotina começa" desc="Por exemplo: “Academia começa agora”.">
+            <input type="checkbox" className="size-5 accent-[var(--accent)]" aria-label="Avisar início dos blocos da rotina" checked={settings.remindBlocks} onChange={(e) => updateSettings({ remindBlocks: e.target.checked })} />
+          </Row>
+          <Row
+            title="Notificações do celular"
+            desc={
+              perm === 'granted'
+                ? 'Ativadas. Os avisos aparecem como notificação, além do aviso dentro do app.'
+                : perm === 'denied'
+                  ? 'Bloqueadas no navegador. Libere nas configurações do site para receber notificações.'
+                  : perm === 'unsupported'
+                    ? 'Este navegador não permite notificações. Você ainda vê o aviso dentro do app.'
+                    : 'Ainda não ativadas. Sem isso, o aviso aparece só dentro do app.'
+            }
+          >
+            {perm === 'default' && (
+              <button className="btn" onClick={() => void Notification.requestPermission().then((p) => setPerm(p))}>
+                <Bell size={16} aria-hidden /> Ativar
+              </button>
+            )}
+          </Row>
+        </div>
       </section>
 
       <section className="mt-8" aria-label="Backup">

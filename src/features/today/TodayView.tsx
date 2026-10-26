@@ -8,6 +8,7 @@ import { isDone, isScheduled } from '../../lib/streak'
 import { byOrder, inView, isOverdue } from '../../lib/tasks'
 import { useNow } from '../../lib/useNow'
 import { useStore } from '../../store/useStore'
+import { CheckCircle } from '../../components/ui'
 import { HabitControl } from '../habits/HabitControl'
 import { TaskList } from '../tasks/TaskList'
 
@@ -18,6 +19,8 @@ export function TodayView() {
   const habits = useStore((s) => s.habits)
   const routine = useStore((s) => s.routine)
   const name = useStore((s) => s.settings.name)
+  const routineLog = useStore((s) => s.routineLog)
+  const toggleBlockDone = useStore((s) => s.toggleBlockDone)
   const addTask = useStore((s) => s.addTask)
   const [text, setText] = useState('')
 
@@ -130,6 +133,24 @@ export function TodayView() {
               )}
             </>
           )}
+        </section>
+      )}
+
+      {dayBlocks.length > 0 && (
+        <section className="mt-8" aria-label="Rotina de hoje">
+          <SectionTitle aside={<NavLink to="rotina" className="text-sm text-accent hover:underline">Ver rotina</NavLink>}>Rotina de hoje</SectionTitle>
+          <ul className="grid grid-cols-1 gap-0.5">
+            {dayBlocks.map((b) => {
+              const done = (routineLog[today] ?? []).includes(b.id)
+              return (
+                <li key={b.id} className="flex items-center gap-1 rounded-xl px-2 hover:bg-surface-2/60">
+                  <CheckCircle checked={done} onChange={() => toggleBlockDone(today, b.id)} label={done ? `Desmarcar “${b.title}”` : `Marcar “${b.title}” como cumprido`} />
+                  <span className="tabular w-[92px] shrink-0 text-sm text-muted">{b.start}–{b.end}</span>
+                  <span className={`min-w-0 flex-1 truncate py-2.5 font-medium ${done ? 'text-muted line-through' : ''}`}>{b.title}</span>
+                </li>
+              )
+            })}
+          </ul>
         </section>
       )}
 
