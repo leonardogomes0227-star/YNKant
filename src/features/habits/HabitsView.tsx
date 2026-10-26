@@ -88,7 +88,7 @@ export function HabitsView() {
     <>
       <PageHeader
         title="Hábitos"
-        subtitle="Pequenas ações repetidas, todos os dias."
+        subtitle="Coisas para fazer sempre, como beber água ou ler. Toque no círculo quando fizer."
         actions={
           <button className="btn btn-primary" onClick={() => setTarget({ id: 'new' })}>
             <Plus size={18} aria-hidden /> Novo hábito

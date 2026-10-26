@@ -27,5 +27,5 @@ export function searchTasks(tasks: Task[], query: string, limit = 20): SearchHit
   return tasks
     .filter((t) => matches(`${t.title} ${t.description} ${t.category}`, query))
     .slice(0, limit)
-    .map((t) => ({ id: t.id, title: t.title, detail: t.done ? 'Concluída' : t.dueDate ? 'Com data' : 'Caixa de entrada' }))
+    .map((t) => ({ id: t.id, title: t.title, detail: t.done ? 'Concluída' : t.dueDate ? 'Com data' : 'Sem data' }))
 }

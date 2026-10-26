@@ -11,28 +11,28 @@ import type { Task } from '../../types'
 import { TaskList } from './TaskList'
 
 const TABS: { id: TaskView; label: string }[] = [
-  { id: 'inbox', label: 'Caixa de entrada' },
+  { id: 'inbox', label: 'Sem data' },
   { id: 'today', label: 'Hoje' },
-  { id: 'week', label: 'Próximos 7 dias' },
+  { id: 'week', label: 'Próximos dias' },
   { id: 'overdue', label: 'Atrasadas' },
-  { id: 'done', label: 'Concluídas' },
+  { id: 'done', label: 'Feitas' },
 ]
 
 const EMPTY: Record<TaskView, { icon: typeof Inbox; title: string; text: string }> = {
   inbox: {
     icon: Inbox,
-    title: 'Caixa de entrada vazia',
-    text: 'Aqui ficam as tarefas sem data: anote tudo o que vier à cabeça e organize depois. Digite acima e aperte Enter, ou use a tecla C em qualquer tela.',
+    title: 'Nenhuma tarefa sem data',
+    text: 'Aqui ficam as tarefas que ainda não têm dia marcado. Escreva acima o que precisa fazer e toque em Adicionar.',
   },
   today: {
     icon: Sun,
     title: 'Nada marcado para hoje',
-    text: 'Crie uma tarefa com a data de hoje ou abra uma da Caixa de entrada e dê uma data a ela.',
+    text: 'Crie uma tarefa para hoje ou abra uma tarefa e escolha o dia dela.',
   },
   week: {
     icon: CalendarDays,
     title: 'Semana livre',
-    text: 'As tarefas com data nos próximos 7 dias aparecem aqui, agrupadas por dia.',
+    text: 'As tarefas marcadas para os próximos dias aparecem aqui, separadas por dia.',
   },
   overdue: {
     icon: CheckCircle2,
@@ -41,8 +41,8 @@ const EMPTY: Record<TaskView, { icon: typeof Inbox; title: string; text: string 
   },
   done: {
     icon: CheckCircle2,
-    title: 'Nada concluído ainda',
-    text: 'Marque uma tarefa como feita e ela aparece aqui. Você pode reabri-la a qualquer momento.',
+    title: 'Nada feito ainda',
+    text: 'Quando você tocar no círculo de uma tarefa, ela aparece aqui.',
   },
 }
 
@@ -96,7 +96,7 @@ export function TasksView() {
     <>
       <PageHeader
         title="Tarefas"
-        subtitle="Capture, organize e conclua."
+        subtitle="Tudo o que você precisa fazer. Toque no círculo para marcar como feita."
         actions={
           <button className="btn btn-primary" onClick={() => openItem({ kind: 'task', id: 'new', defaults: view === 'today' ? { dueDate: today } : {} })}>
             <Plus size={18} aria-hidden /> Nova tarefa
@@ -128,7 +128,7 @@ export function TasksView() {
             className="input"
             value={quick}
             onChange={(e) => setQuick(e.target.value)}
-            placeholder={view === 'inbox' ? 'Nova tarefa na caixa de entrada…' : 'Nova tarefa para hoje…'}
+            placeholder={view === 'inbox' ? 'Escreva uma tarefa e toque em Adicionar' : 'Escreva uma tarefa para hoje'}
             aria-label="Adicionar tarefa rapidamente"
           />
           <button className="btn" type="submit" disabled={!quick.trim()}>
@@ -174,7 +174,7 @@ export function TasksView() {
                 <h3 className="text-sm font-semibold text-muted">{view === 'done' ? `${doneList.length} concluídas` : 'Concluídas'}</h3>
                 {view === 'done' && (
                   <button className="btn btn-ghost btn-sm" onClick={() => setClearing(true)}>
-                    <Trash2 size={14} aria-hidden /> Limpar concluídas
+                    <Trash2 size={14} aria-hidden /> Apagar feitas
                   </button>
                 )}
               </div>
@@ -186,7 +186,7 @@ export function TasksView() {
 
       <ConfirmDialog
         open={clearing}
-        title="Limpar tarefas concluídas?"
+        title="Apagar tarefas feitas?"
         message={`${doneList.length} tarefa(s) concluída(s) serão excluídas de vez.`}
         confirmLabel="Excluir"
         danger

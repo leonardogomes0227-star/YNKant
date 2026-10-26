@@ -122,7 +122,7 @@ function TaskForm({ task, defaults, onClose }: { task?: Task; defaults?: Partial
         <textarea id="t-desc" className="input" value={description} onChange={(e) => setDescription(e.target.value)} />
       </Field>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <Field label="Data" htmlFor="t-date" hint="Sem data, a tarefa fica na Caixa de entrada.">
+        <Field label="Data" htmlFor="t-date" hint="Pode deixar em branco. Formato: dia/mês/ano.">
           <DateField id="t-date" value={dueDate} onChange={setDueDate} onValidity={setDateOk} />
         </Field>
         <Field label="Repetição" htmlFor="t-repeat" hint={repeat !== 'none' && !dueDate ? 'Escolha uma data para repetir.' : undefined}>

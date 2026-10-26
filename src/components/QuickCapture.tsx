@@ -6,7 +6,7 @@ import { useUI } from '../store/ui'
 export function QuickCaptureDialog() {
   const { captureOpen, setCaptureOpen } = useUI()
   return (
-    <Modal open={captureOpen} onClose={() => setCaptureOpen(false)} title="Caixa de entrada">
+    <Modal open={captureOpen} onClose={() => setCaptureOpen(false)} title="Nova tarefa">
       <CaptureForm onDone={() => setCaptureOpen(false)} />
     </Modal>
   )
@@ -26,12 +26,12 @@ function CaptureForm({ onDone }: { onDone: () => void }) {
         const title = text.trim()
         if (!title) return
         addTask({ title })
-        toast('Jogado na caixa de entrada.')
+        toast('Tarefa adicionada.')
         onDone()
       }}
     >
       <label className="label" htmlFor="captura">
-        O que está na sua cabeça?
+        O que você precisa fazer?
       </label>
       <input
         id="captura"
@@ -42,7 +42,7 @@ function CaptureForm({ onDone }: { onDone: () => void }) {
         onChange={(e) => setText(e.target.value)}
         autoComplete="off"
       />
-      <p className="mt-2 text-xs text-muted">Enter salva na Caixa de entrada. Você organiza depois em Tarefas.</p>
+      <p className="mt-2 text-xs text-muted">Depois você pode escolher o dia dela na tela Tarefas.</p>
       <div className="mt-4 flex justify-end">
         <button className="btn btn-primary" type="submit" disabled={!text.trim()}>
           Adicionar

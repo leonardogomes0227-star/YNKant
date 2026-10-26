@@ -1,43 +1,15 @@
-import { useMemo, useRef, useState } from 'react'
-import { CalendarClock, CheckSquare, Flame, Plus, Sparkles, type LucideIcon } from 'lucide-react'
+import { useMemo, useState } from 'react'
+import { CalendarClock, CheckSquare, Flame, Plus } from 'lucide-react'
 import { NavLink } from '../../components/NavLink'
-import { EmptyState, ProgressBar, SectionTitle } from '../../components/ui'
-import { formatLong, greeting, nowMinutes, quoteOfDay, todayKey } from '../../lib/dates'
+import { SectionTitle } from '../../components/ui'
+import { formatLong, greeting, nowMinutes, todayKey } from '../../lib/dates'
 import { blocksForDate, currentBlock, nextBlock } from '../../lib/routine'
-import { isScheduled, isDone } from '../../lib/streak'
-import { inView, isOverdue, byOrder } from '../../lib/tasks'
+import { isDone, isScheduled } from '../../lib/streak'
+import { byOrder, inView, isOverdue } from '../../lib/tasks'
 import { useNow } from '../../lib/useNow'
 import { useStore } from '../../store/useStore'
-import { go, useUI } from '../../store/ui'
 import { HabitControl } from '../habits/HabitControl'
 import { TaskList } from '../tasks/TaskList'
-
-function Stat({
-  icon: Icon,
-  label,
-  value,
-  detail,
-  to,
-  className = '',
-}: {
-  className?: string
-  icon: LucideIcon
-  label: string
-  value: string
-  detail?: string
-  to: Parameters<typeof go>[0]
-}) {
-  return (
-    <NavLink to={to} className={`card metal block p-4 transition-colors hover:border-line-strong ${className}`}>
-      <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted">
-        <Icon size={14} className="text-accent" aria-hidden />
-        {label}
-      </div>
-      <div className="mt-2 truncate font-display text-2xl tabular">{value}</div>
-      {detail && <div className="mt-0.5 truncate text-xs text-muted">{detail}</div>}
-    </NavLink>
-  )
-}
 
 export function TodayView() {
   const now = useNow(30_000)
@@ -45,148 +17,140 @@ export function TodayView() {
   const tasks = useStore((s) => s.tasks)
   const habits = useStore((s) => s.habits)
   const routine = useStore((s) => s.routine)
-  const routineLog = useStore((s) => s.routineLog)
   const name = useStore((s) => s.settings.name)
   const addTask = useStore((s) => s.addTask)
-  const toast = useUI((s) => s.toast)
-  const [quick, setQuick] = useState('')
-  const inputRef = useRef<HTMLInputElement>(null)
+  const [text, setText] = useState('')
 
   const todayTasks = useMemo(() => tasks.filter((t) => inView(t, 'today', today)), [tasks, today])
   const open = todayTasks.filter((t) => !t.done).sort(byOrder)
-  const doneToday = todayTasks.filter((t) => t.done)
+  const done = todayTasks.filter((t) => t.done)
   const overdue = useMemo(() => tasks.filter((t) => isOverdue(t, today)).sort(byOrder), [tasks, today])
-
   const todayHabits = habits.filter((h) => isScheduled(h, today))
-  const habitsDone = todayHabits.filter((h) => isDone(h, today)).length
 
-  const dayBlocks = blocksForDate(routine, today)
   const minutes = nowMinutes(now)
+  const dayBlocks = blocksForDate(routine, today)
   const current = currentBlock(dayBlocks, minutes)
   const next = nextBlock(dayBlocks, minutes)
-  const blockDone = (routineLog[today] ?? []).length
 
-  const total = todayTasks.length + todayHabits.length
-  const doneCount = doneToday.length + habitsDone
-  const pct = total ? (doneCount / total) * 100 : 0
+  const isNew = tasks.length === 0 && habits.length === 0 && routine.length === 0
 
-  const submitQuick = (e: React.FormEvent) => {
+  const submit = (e: React.FormEvent) => {
     e.preventDefault()
-    const title = quick.trim()
+    const title = text.trim()
     if (!title) return
-    addTask({ title })
-    setQuick('')
-    toast('Jogado na caixa de entrada.')
-    inputRef.current?.focus()
+    addTask({ title, dueDate: today })
+    setText('')
   }
 
   return (
     <>
-      <header className="mb-6">
+      <header className="mb-5">
         <p className="text-sm text-muted">{formatLong(now)}</p>
-        <h1 className="mt-1 text-[30px] leading-tight sm:text-5xl">
+        <h1 className="mt-1 text-[32px] leading-tight sm:text-5xl">
           {greeting(now.getHours())}
           {name.trim() ? `, ${name.trim()}` : ''}
         </h1>
-        <p className="mt-2 flex items-start gap-2 text-muted">
-          <Sparkles size={16} className="mt-1 shrink-0 text-accent" aria-hidden />
-          <span className="font-display italic">{quoteOfDay(today)}</span>
-        </p>
       </header>
 
-      <section aria-label="Resumo do dia" className="grid grid-cols-2 gap-3 lg:grid-cols-3">
-        <Stat icon={CheckSquare} label="Tarefas" value={`${doneToday.length}/${todayTasks.length}`} detail={overdue.length ? `${overdue.length} atrasada(s)` : 'feitas hoje'} to="tarefas" />
-        <Stat icon={Flame} label="Hábitos" value={`${habitsDone}/${todayHabits.length}`} detail="concluídos hoje" to="habitos" />
-        <Stat
-          icon={CalendarClock}
-          label={current ? 'Agora' : 'Próximo bloco'}
-          value={current ? current.title : next ? next.title : '—'}
-          detail={
-            current
-              ? `até ${current.end}`
-              : next
-                ? `às ${next.start}`
-                : dayBlocks.length
-                  ? `${blockDone}/${dayBlocks.length} cumpridos`
-                  : 'sem blocos hoje'
-          }
-          to="rotina"
-          className="col-span-2 lg:col-span-1"
-        />
-      </section>
-
-      <section className="card metal mt-3 p-4" aria-label="Progresso do dia">
-        <div className="mb-2 flex items-baseline justify-between">
-          <span className="text-sm font-semibold">Progresso do dia</span>
-          <span className="tabular text-sm text-muted">
-            {total ? `${doneCount} de ${total} · ${Math.round(pct)}%` : 'Nada planejado ainda'}
-          </span>
-        </div>
-        <ProgressBar value={pct} label="Progresso do dia" />
-      </section>
-
-      <form onSubmit={submitQuick} className="mt-6 flex gap-2">
+      <form onSubmit={submit} className="flex gap-2">
         <input
-          ref={inputRef}
           className="input"
-          value={quick}
-          onChange={(e) => setQuick(e.target.value)}
-          placeholder="Jogar na caixa de entrada…  (atalho: C)"
-          aria-label="Captura rápida para a caixa de entrada"
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          placeholder="O que você precisa fazer hoje?"
+          aria-label="Nova tarefa para hoje"
         />
-        <button className="btn btn-primary" type="submit" disabled={!quick.trim()}>
-          <Plus size={18} aria-hidden />
-          <span className="hidden sm:inline">Adicionar</span>
-          <span className="sr-only sm:hidden">Adicionar</span>
+        <button className="btn btn-primary" type="submit" disabled={!text.trim()}>
+          <Plus size={18} aria-hidden /> Adicionar
         </button>
       </form>
 
-      <div className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-2">
-        <section aria-label="Tarefas de hoje">
+      {(current || next) && (
+        <NavLink to="rotina" className="mt-4 flex items-center gap-3 rounded-xl bg-accent-soft px-4 py-3">
+          <CalendarClock size={20} className="shrink-0 text-accent" aria-hidden />
+          <span className="min-w-0 flex-1 text-sm">
+            {current ? (
+              <>
+                <span className="text-muted">Agora:</span> <strong>{current.title}</strong> <span className="text-muted">(até {current.end})</span>
+              </>
+            ) : (
+              next && (
+                <>
+                  <span className="text-muted">Depois:</span> <strong>{next.title}</strong> <span className="text-muted">(às {next.start})</span>
+                </>
+              )
+            )}
+          </span>
+        </NavLink>
+      )}
+
+      {isNew && (
+        <section className="card mt-6 p-5" aria-label="Como começar">
+          <h2 className="text-xl">Como usar</h2>
+          <ol className="mt-3 grid grid-cols-1 gap-3 text-[15px]">
+            <li className="flex gap-3">
+              <CheckSquare size={20} className="mt-0.5 shrink-0 text-accent" aria-hidden />
+              <span><strong>Tarefas:</strong> escreva acima o que precisa fazer hoje e toque no círculo quando terminar.</span>
+            </li>
+            <li className="flex gap-3">
+              <CalendarClock size={20} className="mt-0.5 shrink-0 text-accent" aria-hidden />
+              <span><strong>Rotina:</strong> monte seus horários fixos, como trabalho, academia e almoço.</span>
+            </li>
+            <li className="flex gap-3">
+              <Flame size={20} className="mt-0.5 shrink-0 text-accent" aria-hidden />
+              <span><strong>Hábitos:</strong> coisas para repetir todo dia, como beber água ou ler.</span>
+            </li>
+          </ol>
+          <p className="mt-4 text-sm text-muted">Use os botões lá embaixo para trocar de tela.</p>
+        </section>
+      )}
+
+      {overdue.length > 0 && (
+        <section className="mt-6" aria-label="Atrasadas">
+          <SectionTitle>Atrasadas</SectionTitle>
+          <TaskList tasks={overdue} today={today} label="Tarefas atrasadas" />
+        </section>
+      )}
+
+      {!isNew && (
+        <section className="mt-6" aria-label="Tarefas de hoje">
           <SectionTitle aside={<NavLink to="tarefas" className="text-sm text-accent hover:underline">Ver todas</NavLink>}>Tarefas de hoje</SectionTitle>
-          {overdue.length > 0 && (
-            <div className="mb-3">
-              <h3 className="mb-1 px-2 font-sans text-xs font-semibold uppercase tracking-wider text-danger">Atrasadas</h3>
-              <TaskList tasks={overdue} today={today} label="Tarefas atrasadas" />
-            </div>
-          )}
-          {todayTasks.length === 0 && overdue.length === 0 ? (
-            <EmptyState icon={CheckSquare} title="Nenhuma tarefa para hoje">
-              Dê a data de hoje a uma tarefa em Tarefas, ou capture algo acima e organize depois.
-            </EmptyState>
+          {todayTasks.length === 0 ? (
+            <p className="rounded-xl border border-dashed border-line-strong px-4 py-6 text-center text-sm text-muted">
+              Nada para hoje ainda. Escreva a primeira tarefa no campo acima.
+            </p>
           ) : (
             <>
               {open.length > 0 && <TaskList tasks={open} today={today} showDue={false} sortable label="Tarefas de hoje" />}
-              {doneToday.length > 0 && (
+              {done.length > 0 && (
                 <div className="mt-3">
                   <h3 className="mb-1 px-2 font-sans text-xs font-semibold uppercase tracking-wider text-muted">Feitas</h3>
-                  <TaskList tasks={doneToday} today={today} showDue={false} label="Tarefas feitas hoje" />
+                  <TaskList tasks={done} today={today} showDue={false} label="Tarefas feitas hoje" />
                 </div>
               )}
             </>
           )}
         </section>
+      )}
 
-        <section aria-label="Hábitos de hoje">
-          <SectionTitle aside={<NavLink to="habitos" className="text-sm text-accent hover:underline">Ver todos</NavLink>}>Hábitos</SectionTitle>
-          {todayHabits.length === 0 ? (
-            <EmptyState icon={Flame} title="Nenhum hábito para hoje">
-              Crie um hábito em Hábitos e escolha os dias da semana em que ele vale.
-            </EmptyState>
-          ) : (
-            <ul className="grid grid-cols-1 gap-0.5">
-              {todayHabits.map((h) => (
-                <li key={h.id} className="flex items-center justify-between gap-2 rounded-xl px-2 py-1 hover:bg-surface-2/60">
-                  <span className="flex min-h-11 min-w-0 flex-1 items-center gap-2">
-                    <span className={`truncate font-medium ${isDone(h, today) ? 'text-muted' : ''}`}>{h.name}</span>
-                  </span>
-                  <HabitControl habit={h} date={today} />
-                </li>
-              ))}
-            </ul>
-          )}
+      {todayHabits.length > 0 && (
+        <section className="mt-8" aria-label="Hábitos de hoje">
+          <SectionTitle aside={<NavLink to="habitos" className="text-sm text-accent hover:underline">Ver todos</NavLink>}>Hábitos de hoje</SectionTitle>
+          <ul className="grid grid-cols-1 gap-0.5">
+            {todayHabits.map((h) => (
+              <li key={h.id} className="flex items-center justify-between gap-2 rounded-xl px-2 py-1 hover:bg-surface-2/60">
+                <span className={`flex min-h-11 min-w-0 flex-1 items-center truncate font-medium ${isDone(h, today) ? 'text-muted' : ''}`}>{h.name}</span>
+                <HabitControl habit={h} date={today} />
+              </li>
+            ))}
+          </ul>
         </section>
-      </div>
+      )}
+      {!isNew && todayHabits.length === 0 && habits.length === 0 && (
+        <p className="mt-8 text-sm text-muted">
+          Quer criar uma rotina de hábitos? Vá em <NavLink to="habitos" className="text-accent underline">Hábitos</NavLink>.
+        </p>
+      )}
     </>
   )
 }

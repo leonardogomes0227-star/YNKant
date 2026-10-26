@@ -34,7 +34,7 @@ export function RoutineView() {
     <>
       <PageHeader
         title="Rotina"
-        subtitle="Seus blocos de horário, por dia da semana."
+        subtitle="Seus horários fixos, como trabalho, academia e almoço. Toque em um bloco para editar."
         actions={
           <>
             <button className="btn" onClick={() => setCopying(true)} disabled={blocks.length === 0}>

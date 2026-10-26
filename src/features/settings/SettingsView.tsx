@@ -96,8 +96,8 @@ export function SettingsView() {
       <section className="mt-8" aria-label="Atalhos e sobre">
         <SectionTitle>Atalhos</SectionTitle>
         <ul className="card grid grid-cols-1 gap-2 p-5 text-sm">
-          <li className="flex justify-between gap-3"><span>Buscar tarefas, notas e metas</span><kbd className="rounded border border-line px-1.5">{modKey} + K</kbd></li>
-          <li className="flex justify-between gap-3"><span>Captura rápida (caixa de entrada)</span><kbd className="rounded border border-line px-1.5">C</kbd></li>
+          <li className="flex justify-between gap-3"><span>Buscar tarefas</span><kbd className="rounded border border-line px-1.5">{modKey} + K</kbd></li>
+          <li className="flex justify-between gap-3"><span>Nova tarefa</span><kbd className="rounded border border-line px-1.5">C</kbd></li>
           <li className="flex justify-between gap-3"><span>Reordenar tarefas pelo teclado</span><span className="text-muted">foco na alça + ↑ ↓</span></li>
         </ul>
         <p className="mt-4 text-xs text-muted">Meu Dia · formato de dados v{DATA_VERSION} · tudo fica salvo apenas neste navegador.</p>

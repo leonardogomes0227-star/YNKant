@@ -68,7 +68,7 @@ function Sidebar({ route }: { route: string }) {
           className="flex min-h-10 items-center gap-3 rounded-lg px-3 text-left text-[14.5px] font-medium text-muted transition-colors hover:bg-surface-2/60 hover:text-ink"
         >
           <Plus size={18} aria-hidden />
-          <span className="flex-1">Captura rápida</span>
+          <span className="flex-1">Nova tarefa</span>
           <kbd className="rounded border border-line px-1.5 text-[11px]">C</kbd>
         </button>
         <button
@@ -105,9 +105,9 @@ function MobileTop({ route }: { route: string }) {
         <button
           className="flex h-10 items-center gap-1.5 rounded-xl bg-accent px-3.5 text-sm font-bold text-accent-fg"
           onClick={() => setCaptureOpen(true)}
-          aria-label="Captura rápida: anotar na caixa de entrada"
+          aria-label="Nova tarefa"
         >
-          <Plus size={18} strokeWidth={2.5} aria-hidden /> Anotar
+          <Plus size={18} strokeWidth={2.5} aria-hidden /> Tarefa
         </button>
       </div>
     </div>
