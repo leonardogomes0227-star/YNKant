@@ -118,6 +118,7 @@ export function SettingsView() {
           <li className="flex justify-between gap-3"><span>Reordenar tarefas pelo teclado</span><span className="text-muted">foco na alça + ↑ ↓</span></li>
         </ul>
         <p className="mt-4 text-xs text-muted">Meu Dia · formato de dados v{DATA_VERSION} · tudo fica salvo apenas neste navegador.</p>
+        <p className="mt-1 text-xs text-muted">Versão do app: <strong className="text-ink">{__BUILD_ID__}</strong> · publicada em {__BUILD_DATE__} (UTC)</p>
       </section>
 
       <ConfirmDialog
