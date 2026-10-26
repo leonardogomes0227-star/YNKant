@@ -1,9 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { matches, searchTasks } from './search'
-import type { Task } from '../types'
-
-const task = (id: string, title: string, done = false) =>
-  ({ id, title, description: '', category: '', done, dueDate: null }) as unknown as Task
+import { matches, searchAll } from './search'
+import type { Goal, Note, Task } from '../types'
 
 describe('busca', () => {
   it('ignora acentos e maiúsculas', () => {
@@ -12,10 +9,13 @@ describe('busca', () => {
     expect(matches('Reunião', 'viagem')).toBe(false)
   })
 
-  it('acha tarefas pelo título', () => {
-    const tasks = [task('1', 'Comprar café'), task('2', 'Ligar para o banco', true)]
-    expect(searchTasks(tasks, 'cafe').map((h) => h.id)).toEqual(['1'])
-    expect(searchTasks(tasks, 'banco')[0].detail).toBe('Concluída')
-    expect(searchTasks(tasks, '  ')).toEqual([])
+  it('acha tarefas, notas e metas', () => {
+    const data = {
+      tasks: [{ id: 't', title: 'Comprar café', description: '', category: '', done: false }] as unknown as Task[],
+      notes: [{ id: 'n', title: 'Receitas', body: 'bolo de café', tags: [] }] as unknown as Note[],
+      goals: [{ id: 'g', title: 'Beber menos café', description: '' }] as unknown as Goal[],
+    }
+    expect(searchAll(data, 'cafe').map((h) => h.kind)).toEqual(['task', 'note', 'goal'])
+    expect(searchAll(data, '  ')).toEqual([])
   })
 })

@@ -1,6 +1,7 @@
-import type { ReactNode } from 'react'
-import { Moon, Plus, Search, Settings, Sun } from 'lucide-react'
-import { NAV, SETTINGS_NAV, type NavItem } from './nav'
+import { useEffect, type ReactNode } from 'react'
+import { Modal } from './ui'
+import { MoreHorizontal, Moon, Plus, Search, Settings, Sun } from 'lucide-react'
+import { EXTRA, NAV, SETTINGS_NAV, type NavItem } from './nav'
 import { NavLink } from './NavLink'
 import { useRoute } from '../lib/useRoute'
 import { modKey } from '../lib/platform'
@@ -61,6 +62,10 @@ function Sidebar({ route }: { route: string }) {
         {NAV.map((n) => (
           <SideLink key={n.id} item={n} active={route === n.id} />
         ))}
+        <div className="mx-3 mb-1 mt-4 text-[11px] font-semibold uppercase tracking-wider text-muted">Mais ferramentas</div>
+        {EXTRA.map((n) => (
+          <SideLink key={n.id} item={n} active={route === n.id} />
+        ))}
       </nav>
       <div className="flex flex-col gap-0.5 border-t border-line pt-3">
         <button
@@ -115,23 +120,58 @@ function MobileTop({ route }: { route: string }) {
 }
 
 function BottomNav({ route }: { route: string }) {
+  const { moreOpen, setMoreOpen } = useUI()
+  const moreActive = EXTRA.some((n) => n.id === route)
+
+  useEffect(() => setMoreOpen(false), [route, setMoreOpen])
+
   const cls = (active: boolean) =>
     `relative flex min-h-[60px] flex-1 flex-col items-center justify-center gap-1 text-xs font-semibold transition-colors ${
       active ? 'text-accent' : 'text-muted active:text-ink'
     }`
+  const bar = (active: boolean) =>
+    active && <span className="absolute inset-x-5 top-0 h-0.5 rounded-b bg-accent" aria-hidden />
+
   return (
-    <nav
-      aria-label="Principal"
-      className="fixed inset-x-0 bottom-0 z-30 flex border-t border-line bg-bg pb-[env(safe-area-inset-bottom)] md:hidden"
-    >
-      {NAV.map((n) => (
-        <NavLink key={n.id} to={n.id} current={route === n.id} className={cls(route === n.id)}>
-          {route === n.id && <span className="absolute inset-x-5 top-0 h-0.5 rounded-b bg-accent" aria-hidden />}
-          <n.icon size={23} aria-hidden />
-          {n.label}
-        </NavLink>
-      ))}
-    </nav>
+    <>
+      <nav
+        aria-label="Principal"
+        className="fixed inset-x-0 bottom-0 z-30 flex border-t border-line bg-bg pb-[env(safe-area-inset-bottom)] md:hidden"
+      >
+        {NAV.map((n) => (
+          <NavLink key={n.id} to={n.id} current={route === n.id} className={cls(route === n.id)}>
+            {bar(route === n.id)}
+            <n.icon size={23} aria-hidden />
+            {n.label}
+          </NavLink>
+        ))}
+        <button className={cls(moreActive)} onClick={() => setMoreOpen(true)} aria-haspopup="dialog">
+          {bar(moreActive)}
+          <MoreHorizontal size={23} aria-hidden />
+          Mais
+        </button>
+      </nav>
+      <Modal open={moreOpen} onClose={() => setMoreOpen(false)} title="Mais ferramentas">
+        <div className="grid grid-cols-1 gap-1">
+          {EXTRA.map((n) => (
+            <NavLink
+              key={n.id}
+              to={n.id}
+              current={route === n.id}
+              className={`flex min-h-16 items-center gap-3 rounded-xl px-3 ${
+                route === n.id ? 'bg-surface-2 text-accent' : 'active:bg-surface-2'
+              }`}
+            >
+              <n.icon size={24} className="shrink-0 text-accent" aria-hidden />
+              <span className="min-w-0">
+                <span className="block text-base font-semibold text-ink">{n.label}</span>
+                <span className="block text-sm text-muted">{n.hint}</span>
+              </span>
+            </NavLink>
+          ))}
+        </div>
+      </Modal>
+    </>
   )
 }
 

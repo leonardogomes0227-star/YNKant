@@ -4,6 +4,13 @@ import { LoginScreen } from './components/LoginScreen'
 import { QuickCaptureDialog } from './components/QuickCapture'
 import { SearchDialog } from './components/SearchDialog'
 import { Toasts } from './components/ui'
+import { useFocusTicker } from './features/focus/useFocusTicker'
+import { FocusView } from './features/focus/FocusView'
+import { NotesView } from './features/notes/NotesView'
+import { GoalsView } from './features/goals/GoalsView'
+import { ReviewView } from './features/review/ReviewView'
+import { GoalEditorHost } from './features/goals/GoalEditor'
+import { NoteEditorHost } from './features/notes/NoteEditor'
 import { TaskEditorHost } from './features/tasks/TaskEditor'
 import { TodayView } from './features/today/TodayView'
 import { TasksView } from './features/tasks/TasksView'
@@ -21,6 +28,10 @@ const VIEWS: Record<RouteId, ComponentType> = {
   tarefas: TasksView,
   rotina: RoutineView,
   habitos: HabitsView,
+  foco: FocusView,
+  notas: NotesView,
+  metas: GoalsView,
+  revisao: ReviewView,
   ajustes: SettingsView,
 }
 
@@ -33,6 +44,7 @@ export default function App() {
   const route = useRoute()
   const { toasts, dismissToast, setSearchOpen, setCaptureOpen } = useUI()
   useThemeEffect()
+  useFocusTicker()
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -62,6 +74,8 @@ export default function App() {
       <SearchDialog />
       <QuickCaptureDialog />
       <TaskEditorHost />
+      <NoteEditorHost />
+      <GoalEditorHost />
       <Toasts toasts={toasts} onDismiss={dismissToast} />
     </>
   )

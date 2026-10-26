@@ -148,4 +148,4 @@ export interface AppData {
   timer: TimerState
 }
 
-export type RouteId = 'hoje' | 'tarefas' | 'rotina' | 'habitos' | 'ajustes'
+export type RouteId = 'hoje' | 'tarefas' | 'rotina' | 'habitos' | 'foco' | 'notas' | 'metas' | 'revisao' | 'ajustes'
