@@ -55,6 +55,7 @@ interface Actions {
   addGoal: (g: Partial<Goal> & { title: string }) => string
   updateGoal: (id: string, patch: Partial<Goal>) => void
   deleteGoal: (id: string) => void
+  toggleMilestone: (goalId: string, milestoneId: string) => void
 
   setReview: (week: DateKey, patch: Partial<WeeklyReview>) => void
   addCategory: (name: string) => void
@@ -67,6 +68,7 @@ interface Actions {
   setTimerTask: (id: string | null) => void
   /** Encerra o ciclo atual. `natural` = o tempo acabou sozinho. */
   finishTimer: (natural: boolean) => void
+  deleteSession: (id: string) => void
 
   clearSamples: () => void
   replaceAll: (data: AppData) => void
@@ -253,6 +255,15 @@ export const useStore = create<Store>()(
           goals: s.goals.filter((g) => g.id !== id),
         })),
 
+      toggleMilestone: (goalId, milestoneId) =>
+        set((s) => ({
+          goals: s.goals.map((g) =>
+            g.id === goalId
+              ? { ...g, milestones: g.milestones.map((m) => (m.id === milestoneId ? { ...m, done: !m.done } : m)) }
+              : g,
+          ),
+        })),
+
       // ---------- revisão, categorias, ajustes ----------
       setReview: (week, patch) =>
         set((s) => ({
@@ -344,6 +355,8 @@ export const useStore = create<Store>()(
         })
       },
 
+      deleteSession: (id) => set((s) => ({ focusSessions: s.focusSessions.filter((x) => x.id !== id) })),
+
       // ---------- dados ----------
       clearSamples: () =>
         set((s) => {
@@ -375,7 +388,8 @@ export const useStore = create<Store>()(
             samplesLoaded: true,
           }
         }),
-      replaceAll: (data) => set({ ...data }),
+      // o timer nunca é restaurado em andamento
+      replaceAll: (data) => set({ ...data, timer: freshTimer(data.settings) }),
     }),
     {
       name: 'meu-dia',

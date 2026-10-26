@@ -70,6 +70,20 @@ export function createSampleData(now: Date = new Date()): AppData {
       dueDate: at(-1),
       category: 'Pessoal',
     }),
+    ...[
+      ['Enviar relatório mensal', 1, 'Trabalho'],
+      ['Renovar documento do carro', 2, 'Finanças'],
+      ['Lavar roupas', 3, 'Casa'],
+      ['Ligar para os pais', 3, 'Pessoal'],
+      ['Terminar lição do curso', 5, 'Estudos'],
+    ].map(([title, back, category], k) =>
+      task(10 + k, title as string, {
+        done: true,
+        completedAt: new Date(now.getTime() - (back as number) * 86400000).toISOString(),
+        dueDate: at(-(back as number)),
+        category: category as string,
+      }),
+    ),
   ]
 
   const days = [0, 1, 2, 3, 4, 5, 6]

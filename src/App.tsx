@@ -5,6 +5,8 @@ import { SearchDialog } from './components/SearchDialog'
 import { Toasts } from './components/ui'
 import { useFocusTicker } from './features/focus/useFocusTicker'
 import { TaskEditorHost } from './features/tasks/TaskEditor'
+import { GoalEditorHost } from './features/goals/GoalEditor'
+import { NoteEditorHost } from './features/notes/NoteEditor'
 import { TodayView } from './features/today/TodayView'
 import { TasksView } from './features/tasks/TasksView'
 import { RoutineView } from './features/routine/RoutineView'
@@ -66,6 +68,8 @@ export default function App() {
       <SearchDialog />
       <QuickCaptureDialog />
       <TaskEditorHost />
+      <NoteEditorHost />
+      <GoalEditorHost />
       <Toasts toasts={toasts} onDismiss={dismissToast} />
     </>
   )
