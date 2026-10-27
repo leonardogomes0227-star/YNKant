@@ -22,6 +22,8 @@ export const defaultSettings: Settings = {
   sound: true,
   remindTasks: true,
   remindBlocks: false,
+  waterGoalMl: 2000,
+  waterCupMl: 250,
 }
 
 export function freshTimer(settings: Settings = defaultSettings): TimerState {
@@ -47,6 +49,8 @@ export function emptyData(): AppData {
     goals: [],
     expenses: [],
     shopping: [],
+    water: {},
+    meals: [],
     focusSessions: [],
     reviews: {},
     categories: [...DEFAULT_CATEGORIES],

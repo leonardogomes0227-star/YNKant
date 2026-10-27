@@ -8,6 +8,7 @@ import type {
   Goal,
   Habit,
   JournalEntry,
+  Meal,
   Note,
   RoutineBlock,
   Settings,
@@ -66,6 +67,9 @@ interface Actions {
   toggleShopItem: (id: string) => void
   deleteShopItem: (id: string) => void
   clearBoughtItems: () => void
+  addWater: (date: DateKey, ml: number) => void
+  addMeal: (m: Omit<Meal, 'id' | 'createdAt'>) => void
+  deleteMeal: (id: string) => void
   addCategory: (name: string) => void
   updateSettings: (patch: Partial<Settings>) => void
 
@@ -93,6 +97,8 @@ const DATA_KEYS: (keyof AppData)[] = [
   'goals',
   'expenses',
   'shopping',
+  'water',
+  'meals',
   'focusSessions',
   'reviews',
   'categories',
@@ -281,6 +287,16 @@ export const useStore = create<Store>()(
       toggleShopItem: (id) =>
         set((s) => ({ shopping: s.shopping.map((i) => (i.id === id ? { ...i, done: !i.done } : i)) })),
       deleteShopItem: (id) => set((s) => ({ shopping: s.shopping.filter((i) => i.id !== id) })),
+      addWater: (date, ml) =>
+        set((s) => {
+          const next = Math.max(0, (s.water[date] ?? 0) + ml)
+          const water = { ...s.water }
+          if (next === 0) delete water[date]
+          else water[date] = next
+          return { water }
+        }),
+      addMeal: (m) => set((s) => ({ meals: [...s.meals, { ...m, id: uid(), createdAt: nowIso() }] })),
+      deleteMeal: (id) => set((s) => ({ meals: s.meals.filter((m) => m.id !== id) })),
       clearBoughtItems: () => set((s) => ({ shopping: s.shopping.filter((i) => !i.done) })),
 
       setReview: (week, patch) =>

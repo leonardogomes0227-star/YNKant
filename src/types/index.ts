@@ -119,6 +119,18 @@ export interface ShopItem {
   createdAt: string
 }
 
+export type MealType = 'cafe' | 'almoco' | 'lanche' | 'jantar'
+
+export interface Meal {
+  id: string
+  date: DateKey
+  type: MealType
+  note: string
+  /** Calorias, opcional. */
+  kcal: number | null
+  createdAt: string
+}
+
 export interface WeeklyReview {
   priorities: string
   reflection: string
@@ -138,6 +150,10 @@ export interface Settings {
   remindTasks: boolean
   /** Avisar quando um bloco da rotina começa. */
   remindBlocks: boolean
+  /** Meta diária de água, em ml. */
+  waterGoalMl: number
+  /** Tamanho de um copo, em ml. */
+  waterCupMl: number
 }
 
 export type TimerMode = 'focus' | 'short' | 'long'
@@ -167,6 +183,9 @@ export interface AppData {
   goals: Goal[]
   expenses: Expense[]
   shopping: ShopItem[]
+  /** Água bebida por dia, em ml. */
+  water: Record<DateKey, number>
+  meals: Meal[]
   focusSessions: FocusSession[]
   reviews: Record<DateKey, WeeklyReview>
   categories: string[]
@@ -174,4 +193,4 @@ export interface AppData {
   timer: TimerState
 }
 
-export type RouteId = 'hoje' | 'tarefas' | 'rotina' | 'habitos' | 'foco' | 'notas' | 'metas' | 'revisao' | 'gastos' | 'compras' | 'ajustes'
+export type RouteId = 'hoje' | 'tarefas' | 'rotina' | 'habitos' | 'foco' | 'notas' | 'metas' | 'revisao' | 'gastos' | 'compras' | 'agua' | 'alimentacao' | 'ajustes'

@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { CalendarClock, CheckSquare, Flame, Plus } from 'lucide-react'
+import { CalendarClock, CheckSquare, Droplets, Flame, Plus } from 'lucide-react'
 import { NavLink } from '../../components/NavLink'
 import { SectionTitle } from '../../components/ui'
 import { formatLong, greeting, nowMinutes, todayKey } from '../../lib/dates'
@@ -7,6 +7,7 @@ import { blocksForDate, currentBlock, nextBlock } from '../../lib/routine'
 import { isDone, isScheduled } from '../../lib/streak'
 import { byOrder, inView, isOverdue } from '../../lib/tasks'
 import { useNow } from '../../lib/useNow'
+import { formatMl, waterPercent } from '../../lib/health'
 import { useStore } from '../../store/useStore'
 import { CheckCircle } from '../../components/ui'
 import { HabitControl } from '../habits/HabitControl'
@@ -19,6 +20,10 @@ export function TodayView() {
   const habits = useStore((s) => s.habits)
   const routine = useStore((s) => s.routine)
   const name = useStore((s) => s.settings.name)
+  const water = useStore((s) => s.water)
+  const waterGoal = useStore((s) => s.settings.waterGoalMl)
+  const waterCup = useStore((s) => s.settings.waterCupMl)
+  const addWater = useStore((s) => s.addWater)
   const routineLog = useStore((s) => s.routineLog)
   const toggleBlockDone = useStore((s) => s.toggleBlockDone)
   const addTask = useStore((s) => s.addTask)
@@ -67,6 +72,19 @@ export function TodayView() {
           <Plus size={18} aria-hidden /> Adicionar
         </button>
       </form>
+
+      <section className="card mt-4 flex items-center gap-3 p-3" aria-label="Água de hoje">
+        <Droplets size={22} className="ml-1 shrink-0 text-accent" aria-hidden />
+        <NavLink to="agua" className="min-w-0 flex-1">
+          <span className="block text-sm font-semibold">Água</span>
+          <span className="tabular block text-sm text-muted">
+            {formatMl(water[today] ?? 0)} de {formatMl(waterGoal)} · {waterPercent(water[today] ?? 0, waterGoal)}%
+          </span>
+        </NavLink>
+        <button className="btn" onClick={() => addWater(today, waterCup)} aria-label={`Beber um copo (${formatMl(waterCup)})`}>
+          <Plus size={16} aria-hidden /> Copo
+        </button>
+      </section>
 
       {(current || next) && (
         <NavLink to="rotina" className="mt-4 flex items-center gap-3 rounded-xl bg-accent-soft px-4 py-3">

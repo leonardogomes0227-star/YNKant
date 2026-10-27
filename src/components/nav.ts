@@ -2,6 +2,7 @@ import {
   BarChart3,
   CalendarClock,
   CheckSquare,
+  Droplets,
   Flame,
   ShoppingCart,
   Wallet,
@@ -9,6 +10,7 @@ import {
   Settings,
   Sun,
   Target,
+  Utensils,
   Timer,
   type LucideIcon,
 } from 'lucide-react'
@@ -37,6 +39,8 @@ export const EXTRA: NavItem[] = [
   { id: 'metas', label: 'Metas', icon: Target, hint: 'Objetivos maiores, com prazo e etapas' },
   { id: 'gastos', label: 'Gastos', icon: Wallet, hint: 'Anote o que gastou e veja o total do mês' },
   { id: 'compras', label: 'Compras', icon: ShoppingCart, hint: 'Lista de compras para riscar no mercado' },
+  { id: 'agua', label: 'Água', icon: Droplets, hint: 'Conte os copos e bata a meta do dia' },
+  { id: 'alimentacao', label: 'Alimentação', icon: Utensils, hint: 'Anote o que comeu em cada refeição' },
   { id: 'revisao', label: 'Revisão da semana', icon: BarChart3, hint: 'Veja o que você fez e planeje a próxima' },
 ]
 

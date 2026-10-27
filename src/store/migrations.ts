@@ -96,6 +96,8 @@ export function normalizeData(input: unknown): AppData {
       .map((g) => ({ ...goalDefaults, ...g }) as AppData['goals'][number]),
     expenses: arr(raw.expenses).filter((e) => hasStr(e, 'id') && typeof e.amount === 'number') as unknown as AppData['expenses'],
     shopping: arr(raw.shopping).filter((i) => hasStr(i, 'id') && hasStr(i, 'name')) as unknown as AppData['shopping'],
+    water: isObj(raw.water) ? Object.fromEntries(Object.entries(raw.water).filter(([, v]) => typeof v === 'number' && v > 0)) as Record<string, number> : {},
+    meals: arr(raw.meals).filter((m) => hasStr(m, 'id') && hasStr(m, 'date')) as unknown as AppData['meals'],
     focusSessions: arr(raw.focusSessions).filter(
       (s) => hasStr(s, 'id') && typeof s.seconds === 'number',
     ) as unknown as FocusSession[],
