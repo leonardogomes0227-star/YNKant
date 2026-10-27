@@ -24,6 +24,9 @@ export const defaultSettings: Settings = {
   remindBlocks: false,
   waterGoalMl: 2000,
   waterCupMl: 250,
+  kcalGoal: 0,
+  proteinGoal: 0,
+  sleepGoalH: 8,
 }
 
 export function freshTimer(settings: Settings = defaultSettings): TimerState {
@@ -51,6 +54,12 @@ export function emptyData(): AppData {
     shopping: [],
     water: {},
     meals: [],
+    workouts: [],
+    workoutLogs: [],
+    activeWorkout: null,
+    body: [],
+    sleep: {},
+    books: [],
     focusSessions: [],
     reviews: {},
     categories: [...DEFAULT_CATEGORIES],

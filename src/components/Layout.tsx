@@ -1,7 +1,7 @@
 import { useEffect, type ReactNode } from 'react'
 import { Modal } from './ui'
 import { MoreHorizontal, Moon, Plus, Search, Settings, Sun } from 'lucide-react'
-import { EXTRA, NAV, SETTINGS_NAV, type NavItem } from './nav'
+import { EXTRA, EXTRA_GROUPS, NAV, SETTINGS_NAV, type NavItem } from './nav'
 import { NavLink } from './NavLink'
 import { useRoute } from '../lib/useRoute'
 import { modKey } from '../lib/platform'
@@ -58,13 +58,17 @@ function Sidebar({ route }: { route: string }) {
       <div className="px-3 pb-6">
         <Logo />
       </div>
-      <nav aria-label="Principal" className="flex flex-1 flex-col gap-0.5">
+      <nav aria-label="Principal" className="flex min-h-0 flex-1 flex-col gap-0.5 overflow-y-auto">
         {NAV.map((n) => (
           <SideLink key={n.id} item={n} active={route === n.id} />
         ))}
-        <div className="mx-3 mb-1 mt-4 text-[11px] font-semibold uppercase tracking-wider text-muted">Mais ferramentas</div>
-        {EXTRA.map((n) => (
-          <SideLink key={n.id} item={n} active={route === n.id} />
+        {EXTRA_GROUPS.map((g) => (
+          <div key={g.title} className="grid grid-cols-1 gap-0.5">
+            <div className="mx-3 mb-1 mt-4 text-[11px] font-semibold uppercase tracking-wider text-muted">{g.title}</div>
+            {g.items.map((n) => (
+              <SideLink key={n.id} item={n} active={route === n.id} />
+            ))}
+          </div>
         ))}
       </nav>
       <div className="flex flex-col gap-0.5 border-t border-line pt-3">
@@ -152,22 +156,29 @@ function BottomNav({ route }: { route: string }) {
         </button>
       </nav>
       <Modal open={moreOpen} onClose={() => setMoreOpen(false)} title="Mais ferramentas">
-        <div className="grid grid-cols-1 gap-1">
-          {EXTRA.map((n) => (
-            <NavLink
-              key={n.id}
-              to={n.id}
-              current={route === n.id}
-              className={`flex min-h-16 items-center gap-3 rounded-xl px-3 ${
-                route === n.id ? 'bg-surface-2 text-accent' : 'active:bg-surface-2'
-              }`}
-            >
-              <n.icon size={24} className="shrink-0 text-accent" aria-hidden />
-              <span className="min-w-0">
-                <span className="block text-base font-semibold text-ink">{n.label}</span>
-                <span className="block text-sm text-muted">{n.hint}</span>
-              </span>
-            </NavLink>
+        <div className="grid grid-cols-1 gap-4">
+          {EXTRA_GROUPS.map((g) => (
+            <div key={g.title}>
+              <h3 className="mb-1 px-3 font-sans text-xs font-semibold uppercase tracking-wider text-muted">{g.title}</h3>
+              <div className="grid grid-cols-1 gap-0.5">
+                {g.items.map((n) => (
+                  <NavLink
+                    key={n.id}
+                    to={n.id}
+                    current={route === n.id}
+                    className={`flex min-h-14 items-center gap-3 rounded-xl px-3 ${
+                      route === n.id ? 'bg-surface-2 text-accent' : 'active:bg-surface-2'
+                    }`}
+                  >
+                    <n.icon size={22} className="shrink-0 text-accent" aria-hidden />
+                    <span className="min-w-0">
+                      <span className="block text-base font-semibold text-ink">{n.label}</span>
+                      <span className="block text-sm leading-snug text-muted">{n.hint}</span>
+                    </span>
+                  </NavLink>
+                ))}
+              </div>
+            </div>
           ))}
         </div>
       </Modal>

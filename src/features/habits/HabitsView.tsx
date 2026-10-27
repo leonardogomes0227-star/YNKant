@@ -1,10 +1,12 @@
 import { useState } from 'react'
-import { ChevronLeft, ChevronRight, Flame, Pencil, Plus, Trophy } from 'lucide-react'
-import { EmptyState, PageHeader } from '../../components/ui'
+import { ChevronLeft, ChevronRight, Flame, Lightbulb, Pencil, Plus, Trophy } from 'lucide-react'
+import { EmptyState, Modal, PageHeader } from '../../components/ui'
 import { formatLong, fromKey, shiftKey, todayKey, WEEKDAY_SHORT, WEEKDAY_ORDER, weekdayOf } from '../../lib/dates'
 import { habitStats, isDone, isScheduled } from '../../lib/streak'
 import { useNow } from '../../lib/useNow'
+import { HABIT_IDEAS } from '../../lib/habitIdeas'
 import { useStore } from '../../store/useStore'
+import { useUI } from '../../store/ui'
 import type { DateKey, Habit } from '../../types'
 import { HabitControl } from './HabitControl'
 import { HabitEditor, type HabitTarget } from './HabitEditor'
@@ -79,6 +81,9 @@ export function HabitsView() {
   const habits = useStore((s) => s.habits)
   const [date, setDate] = useState<DateKey>(today)
   const [target, setTarget] = useState<HabitTarget>(null)
+  const [ideas, setIdeas] = useState(false)
+  const addHabit = useStore((s) => s.addHabit)
+  const toast = useUI((s) => s.toast)
 
   const shown = date > today ? today : date
   const dayHabits = habits.filter((h) => isScheduled(h, shown))
@@ -90,9 +95,14 @@ export function HabitsView() {
         title="Hábitos"
         subtitle="Coisas para fazer sempre, como beber água ou ler. Toque no círculo quando fizer."
         actions={
-          <button className="btn btn-primary" onClick={() => setTarget({ id: 'new' })}>
-            <Plus size={18} aria-hidden /> Novo hábito
-          </button>
+          <>
+            <button className="btn" onClick={() => setIdeas(true)}>
+              <Lightbulb size={16} aria-hidden /> Ideias
+            </button>
+            <button className="btn btn-primary" onClick={() => setTarget({ id: 'new' })}>
+              <Plus size={18} aria-hidden /> Novo hábito
+            </button>
+          </>
         }
       />
 
@@ -101,9 +111,14 @@ export function HabitsView() {
           icon={Flame}
           title="Nenhum hábito ainda"
           action={
-            <button className="btn btn-primary" onClick={() => setTarget({ id: 'new' })}>
-              <Plus size={18} aria-hidden /> Criar o primeiro hábito
-            </button>
+            <div className="flex flex-wrap justify-center gap-2">
+              <button className="btn btn-primary" onClick={() => setIdeas(true)}>
+                <Lightbulb size={18} aria-hidden /> Ver ideias
+              </button>
+              <button className="btn" onClick={() => setTarget({ id: 'new' })}>
+                <Plus size={18} aria-hidden /> Criar o meu
+              </button>
+            </div>
           }
         >
           Hábitos são ações que você quer repetir: beber água, ler, treinar. Escolha os dias da semana e acompanhe sua sequência e um calendário de calor dos últimos 3 meses.
@@ -134,6 +149,32 @@ export function HabitsView() {
         </>
       )}
       <HabitEditor target={target} onClose={() => setTarget(null)} />
+      <Modal open={ideas} onClose={() => setIdeas(false)} title="Ideias de hábitos">
+        <p className="mb-3 text-sm text-muted">Toque em Adicionar para criar o hábito. Depois você pode editar os dias.</p>
+        <ul className="grid grid-cols-1 gap-2">
+          {HABIT_IDEAS.map((i) => {
+            const has = habits.some((h) => h.name.toLowerCase() === i.name.toLowerCase())
+            return (
+              <li key={i.name} className="flex items-center gap-3 rounded-xl border border-line p-3">
+                <span className="min-w-0 flex-1">
+                  <span className="block font-semibold">{i.name}</span>
+                  <span className="block text-xs text-muted">{i.why}</span>
+                </span>
+                <button
+                  className="btn btn-sm"
+                  disabled={has}
+                  onClick={() => {
+                    addHabit({ name: i.name, days: i.days, kind: i.kind ?? 'check', target: i.target ?? 1, unit: i.unit ?? '' })
+                    toast(`“${i.name}” adicionado em Hábitos.`)
+                  }}
+                >
+                  {has ? 'Já tem' : 'Adicionar'}
+                </button>
+              </li>
+            )
+          })}
+        </ul>
+      </Modal>
     </>
   )
 }

@@ -1,6 +1,6 @@
 # Meu Dia
 
-Organizador pessoal simples para o dia a dia, com o essencial: **Hoje**, **Tarefas** (com horário e lembrete), **Rotina** (blocos de horário) e **Hábitos**, mais as ferramentas do menu *Mais*: Foco, Notas, Metas, Gastos, Compras e Revisão da semana. Sem login e sem backend — tudo fica salvo no seu navegador e funciona offline (PWA).
+Organizador pessoal simples para o dia a dia, com o essencial: **Hoje**, **Tarefas** (com horário e lembrete), **Rotina** (blocos de horário) e **Hábitos**, mais as ferramentas do menu *Mais*, em três grupos: **Saúde e corpo** (Treino, Alimentação, Água, Sono), **Mente e foco** (Foco, Leitura, Notas, Metas, Revisão da semana) e **Vida prática** (Gastos, Compras). Sem login e sem backend — tudo fica salvo no seu navegador e funciona offline (PWA).
 
 **Stack:** Vite + React + TypeScript + Tailwind CSS 4, Zustand (persistência em `localStorage`), lucide-react, date-fns (pt-BR), Vitest.
 

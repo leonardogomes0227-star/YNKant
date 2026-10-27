@@ -97,7 +97,17 @@ export function normalizeData(input: unknown): AppData {
     expenses: arr(raw.expenses).filter((e) => hasStr(e, 'id') && typeof e.amount === 'number') as unknown as AppData['expenses'],
     shopping: arr(raw.shopping).filter((i) => hasStr(i, 'id') && hasStr(i, 'name')) as unknown as AppData['shopping'],
     water: isObj(raw.water) ? Object.fromEntries(Object.entries(raw.water).filter(([, v]) => typeof v === 'number' && v > 0)) as Record<string, number> : {},
-    meals: arr(raw.meals).filter((m) => hasStr(m, 'id') && hasStr(m, 'date')) as unknown as AppData['meals'],
+    meals: arr(raw.meals)
+      .filter((m) => hasStr(m, 'id') && hasStr(m, 'date'))
+      .map((m) => ({ protein: null, carbs: null, fat: null, kcal: null, ...m })) as unknown as AppData['meals'],
+    workouts: arr(raw.workouts).filter((w) => hasStr(w, 'id') && Array.isArray(w.exercises)) as unknown as AppData['workouts'],
+    workoutLogs: arr(raw.workoutLogs).filter((w) => hasStr(w, 'id') && Array.isArray(w.exercises)) as unknown as AppData['workoutLogs'],
+    activeWorkout: isObj(raw.activeWorkout) && isObj(raw.activeWorkout.log) ? (raw.activeWorkout as unknown as AppData['activeWorkout']) : null,
+    body: arr(raw.body).filter((b) => hasStr(b, 'id') && typeof b.kg === 'number') as unknown as AppData['body'],
+    sleep: isObj(raw.sleep)
+      ? (Object.fromEntries(Object.entries(raw.sleep).filter(([, v]) => isObj(v) && typeof v.hours === 'number')) as unknown as AppData['sleep'])
+      : {},
+    books: arr(raw.books).filter((b) => hasStr(b, 'id') && hasStr(b, 'title')) as unknown as AppData['books'],
     focusSessions: arr(raw.focusSessions).filter(
       (s) => hasStr(s, 'id') && typeof s.seconds === 'number',
     ) as unknown as FocusSession[],

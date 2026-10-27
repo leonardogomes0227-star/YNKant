@@ -6,6 +6,9 @@ import { SearchDialog } from './components/SearchDialog'
 import { Toasts } from './components/ui'
 import { ExpensesView } from './features/expenses/ExpensesView'
 import { ShoppingView } from './features/shopping/ShoppingView'
+import { WorkoutView } from './features/workout/WorkoutView'
+import { SleepView } from './features/health/SleepView'
+import { BooksView } from './features/books/BooksView'
 import { WaterView } from './features/health/WaterView'
 import { MealsView } from './features/health/MealsView'
 import { useReminders } from './features/reminders/useReminders'
@@ -41,6 +44,9 @@ const VIEWS: Record<RouteId, ComponentType> = {
   compras: ShoppingView,
   agua: WaterView,
   alimentacao: MealsView,
+  treino: WorkoutView,
+  sono: SleepView,
+  leitura: BooksView,
   ajustes: SettingsView,
 }
 

@@ -4,7 +4,7 @@ import type { RouteId, Task } from '../types'
 /** `id: 'new'` abre o editor para criar um item novo. */
 export type OpenTarget = { kind: 'task' | 'note' | 'goal'; id: string; defaults?: Partial<Task> } | null
 
-export const ROUTES: RouteId[] = ['hoje', 'tarefas', 'rotina', 'habitos', 'foco', 'notas', 'metas', 'revisao', 'gastos', 'compras', 'agua', 'alimentacao', 'ajustes']
+export const ROUTES: RouteId[] = ['hoje', 'tarefas', 'rotina', 'habitos', 'foco', 'notas', 'metas', 'revisao', 'gastos', 'compras', 'agua', 'alimentacao', 'treino', 'sono', 'leitura', 'ajustes']
 
 export function parseRoute(hash: string): RouteId {
   const id = hash.replace(/^#\/?/, '').split(/[/?]/)[0] as RouteId

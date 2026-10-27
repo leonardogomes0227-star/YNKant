@@ -128,6 +128,80 @@ export interface Meal {
   note: string
   /** Calorias, opcional. */
   kcal: number | null
+  /** Macros em gramas, opcionais. */
+  protein: number | null
+  carbs: number | null
+  fat: number | null
+  createdAt: string
+}
+
+export interface TemplateExercise {
+  id: string
+  name: string
+  /** Meta: séries × repetições, carga opcional (kg). */
+  sets: number
+  reps: number
+  kg: number | null
+}
+
+export interface WorkoutTemplate {
+  id: string
+  name: string
+  exercises: TemplateExercise[]
+}
+
+export interface LoggedSet {
+  reps: number
+  kg: number
+  done: boolean
+}
+
+export interface LoggedExercise {
+  id: string
+  name: string
+  sets: LoggedSet[]
+}
+
+export interface WorkoutLog {
+  id: string
+  date: DateKey
+  templateId: string | null
+  name: string
+  durationMin: number | null
+  exercises: LoggedExercise[]
+  note: string
+  createdAt: string
+}
+
+/** Treino em andamento (fica salvo, para não perder se você sair do app). */
+export interface ActiveWorkout {
+  startedAt: number
+  log: WorkoutLog
+}
+
+export interface BodyEntry {
+  id: string
+  date: DateKey
+  kg: number
+  waistCm: number | null
+}
+
+export interface SleepEntry {
+  hours: number
+  /** Qualidade de 1 a 5. */
+  quality: number | null
+}
+
+export type BookStatus = 'lendo' | 'quero' | 'lido'
+
+export interface Book {
+  id: string
+  title: string
+  author: string
+  totalPages: number
+  pagesRead: number
+  status: BookStatus
+  finishedAt: DateKey | null
   createdAt: string
 }
 
@@ -154,6 +228,12 @@ export interface Settings {
   waterGoalMl: number
   /** Tamanho de um copo, em ml. */
   waterCupMl: number
+  /** Meta de calorias por dia (0 = sem meta). */
+  kcalGoal: number
+  /** Meta de proteína por dia, em g (0 = sem meta). */
+  proteinGoal: number
+  /** Meta de horas de sono por noite. */
+  sleepGoalH: number
 }
 
 export type TimerMode = 'focus' | 'short' | 'long'
@@ -186,6 +266,12 @@ export interface AppData {
   /** Água bebida por dia, em ml. */
   water: Record<DateKey, number>
   meals: Meal[]
+  workouts: WorkoutTemplate[]
+  workoutLogs: WorkoutLog[]
+  activeWorkout: ActiveWorkout | null
+  body: BodyEntry[]
+  sleep: Record<DateKey, SleepEntry>
+  books: Book[]
   focusSessions: FocusSession[]
   reviews: Record<DateKey, WeeklyReview>
   categories: string[]
@@ -193,4 +279,4 @@ export interface AppData {
   timer: TimerState
 }
 
-export type RouteId = 'hoje' | 'tarefas' | 'rotina' | 'habitos' | 'foco' | 'notas' | 'metas' | 'revisao' | 'gastos' | 'compras' | 'agua' | 'alimentacao' | 'ajustes'
+export type RouteId = 'hoje' | 'tarefas' | 'rotina' | 'habitos' | 'foco' | 'notas' | 'metas' | 'revisao' | 'gastos' | 'compras' | 'agua' | 'alimentacao' | 'treino' | 'sono' | 'leitura' | 'ajustes'

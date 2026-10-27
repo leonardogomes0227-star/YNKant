@@ -75,6 +75,12 @@ export const WEEKDAY_LONG = [
   'sábado',
 ]
 
+/** "Segunda-feira" (só a primeira letra maiúscula). */
+export function weekdayName(key: DateKey): string {
+  const s = WEEKDAY_LONG[weekdayOf(key)]
+  return s.charAt(0).toUpperCase() + s.slice(1)
+}
+
 export function diffDays(a: DateKey, b: DateKey): number {
   return differenceInCalendarDays(fromKey(a), fromKey(b))
 }

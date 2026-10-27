@@ -3,6 +3,9 @@ import { ChevronLeft, ChevronRight, ClipboardCheck } from 'lucide-react'
 import { Field, PageHeader, ProgressBar, SectionTitle } from '../../components/ui'
 import { formatBR, formatDuration, shiftKey, todayKey, weekKeys, weekStartKey, WEEKDAY_SHORT, weekdayOf } from '../../lib/dates'
 import { MOODS } from '../../lib/moods'
+import { formatMl } from '../../lib/health'
+import { healthWeek } from '../../lib/healthWeek'
+import { formatHours } from '../../lib/sleep'
 import { weekSummary } from '../../lib/review'
 import { useNow } from '../../lib/useNow'
 import { useStore } from '../../store/useStore'
@@ -35,6 +38,10 @@ export function ReviewView() {
   const focusSessions = useStore((s) => s.focusSessions)
   const journal = useStore((s) => s.journal)
   const reviews = useStore((s) => s.reviews)
+  const workoutLogs = useStore((s) => s.workoutLogs)
+  const water = useStore((s) => s.water)
+  const sleep = useStore((s) => s.sleep)
+  const meals = useStore((s) => s.meals)
   const setReview = useStore((s) => s.setReview)
   const [anchor, setAnchor] = useState<DateKey>(today)
   const [metric, setMetric] = useState<Metric>('tasks')
@@ -43,6 +50,7 @@ export function ReviewView() {
   const days = weekKeys(start)
   const isCurrent = start === weekStartKey(today)
   const sum = weekSummary({ tasks, habits, focusSessions, journal }, days, today)
+  const health = healthWeek({ workoutLogs, water, sleep, meals }, days)
   const review = reviews[start] ?? { priorities: '', reflection: '' }
 
   const value = (d: (typeof sum.days)[number]) =>
@@ -71,6 +79,16 @@ export function ReviewView() {
         <Kpi label="Hábitos" value={sum.habitsScheduled ? `${Math.round(sum.habitRate * 100)}%` : '—'} detail={sum.habitsScheduled ? `${sum.habitsDone} de ${sum.habitsScheduled} previstos` : 'nenhum previsto'} />
         <Kpi label="Horas de foco" value={formatDuration(sum.focusSeconds)} detail={`${focusSessions.filter((s) => days.includes(s.date)).length} sessões`} />
         <Kpi label="Humor médio" value={sum.moodAvg !== null ? sum.moodAvg.toFixed(1).replace('.', ',') : '—'} detail={sum.moodAvg !== null ? MOODS[Math.round(sum.moodAvg) - 1].label : 'sem registros no diário'} />
+      </section>
+
+      <section className="card mt-4 p-4" aria-label="Saúde da semana">
+        <h2 className="mb-3 text-base">Saúde na semana</h2>
+        <dl className="grid grid-cols-2 gap-3 text-center sm:grid-cols-4">
+          <div><dd className="tabular m-0 font-display text-2xl">{health.workouts}</dd><dt className="text-xs text-muted">treinos</dt></div>
+          <div><dd className="tabular m-0 font-display text-2xl">{health.waterAvg !== null ? formatMl(health.waterAvg) : '—'}</dd><dt className="text-xs text-muted">água por dia</dt></div>
+          <div><dd className="tabular m-0 font-display text-2xl">{health.sleepAvg !== null ? formatHours(health.sleepAvg) : '—'}</dd><dt className="text-xs text-muted">sono por noite</dt></div>
+          <div><dd className="tabular m-0 font-display text-2xl">{health.kcalAvg !== null ? health.kcalAvg : '—'}</dd><dt className="text-xs text-muted">kcal por dia</dt></div>
+        </dl>
       </section>
 
       <section className="card mt-4 p-5" aria-label="Gráfico por dia">

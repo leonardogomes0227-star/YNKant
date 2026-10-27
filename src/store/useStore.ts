@@ -4,11 +4,16 @@ import type {
   AppData,
   DateKey,
   FocusSession,
+  ActiveWorkout,
+  Book,
   Expense,
   Goal,
   Habit,
   JournalEntry,
   Meal,
+  SleepEntry,
+  WorkoutLog,
+  WorkoutTemplate,
   Note,
   RoutineBlock,
   Settings,
@@ -70,6 +75,20 @@ interface Actions {
   addWater: (date: DateKey, ml: number) => void
   addMeal: (m: Omit<Meal, 'id' | 'createdAt'>) => void
   deleteMeal: (id: string) => void
+  addTemplate: (t: Omit<WorkoutTemplate, 'id'>) => string
+  updateTemplate: (id: string, patch: Partial<WorkoutTemplate>) => void
+  deleteTemplate: (id: string) => void
+  /** Substitui o treino em andamento (ou limpa, com null). */
+  setActiveWorkout: (a: ActiveWorkout | null) => void
+  /** Guarda o treino em andamento no histórico (só séries marcadas como feitas). Devolve false se nada foi feito. */
+  finishWorkout: () => boolean
+  deleteWorkoutLog: (id: string) => void
+  addBody: (b: { date: DateKey; kg: number; waistCm: number | null }) => void
+  deleteBody: (id: string) => void
+  setSleep: (date: DateKey, entry: SleepEntry | null) => void
+  addBook: (b: Pick<Book, 'title' | 'author' | 'totalPages'> & Partial<Book>) => void
+  updateBook: (id: string, patch: Partial<Book>) => void
+  deleteBook: (id: string) => void
   addCategory: (name: string) => void
   updateSettings: (patch: Partial<Settings>) => void
 
@@ -99,6 +118,12 @@ const DATA_KEYS: (keyof AppData)[] = [
   'shopping',
   'water',
   'meals',
+  'workouts',
+  'workoutLogs',
+  'activeWorkout',
+  'body',
+  'sleep',
+  'books',
   'focusSessions',
   'reviews',
   'categories',
@@ -297,6 +322,50 @@ export const useStore = create<Store>()(
         }),
       addMeal: (m) => set((s) => ({ meals: [...s.meals, { ...m, id: uid(), createdAt: nowIso() }] })),
       deleteMeal: (id) => set((s) => ({ meals: s.meals.filter((m) => m.id !== id) })),
+      addTemplate: (t) => {
+        const id = uid()
+        set((s) => ({ workouts: [...s.workouts, { ...t, id }] }))
+        return id
+      },
+      updateTemplate: (id, patch) =>
+        set((s) => ({ workouts: s.workouts.map((w) => (w.id === id ? { ...w, ...patch } : w)) })),
+      deleteTemplate: (id) => set((s) => ({ workouts: s.workouts.filter((w) => w.id !== id) })),
+      setActiveWorkout: (activeWorkout) => set({ activeWorkout }),
+      finishWorkout: () => {
+        const a = get().activeWorkout
+        if (!a) return false
+        const exercises = a.log.exercises
+          .map((e) => ({ ...e, sets: e.sets.filter((x) => x.done) }))
+          .filter((e) => e.sets.length > 0)
+        if (exercises.length === 0) return false
+        const log: WorkoutLog = {
+          ...a.log,
+          exercises,
+          durationMin: Math.max(1, Math.round((Date.now() - a.startedAt) / 60000)),
+          createdAt: nowIso(),
+        }
+        set((s) => ({ workoutLogs: [...s.workoutLogs, log], activeWorkout: null }))
+        return true
+      },
+      deleteWorkoutLog: (id) => set((s) => ({ workoutLogs: s.workoutLogs.filter((w) => w.id !== id) })),
+      addBody: (b) => set((s) => ({ body: [...s.body, { ...b, id: uid() }] })),
+      deleteBody: (id) => set((s) => ({ body: s.body.filter((b) => b.id !== id) })),
+      setSleep: (date, entry) =>
+        set((s) => {
+          const sleep = { ...s.sleep }
+          if (entry) sleep[date] = entry
+          else delete sleep[date]
+          return { sleep }
+        }),
+      addBook: (b) =>
+        set((s) => ({
+          books: [
+            ...s.books,
+            { pagesRead: 0, status: 'lendo', finishedAt: null, ...b, id: uid(), createdAt: nowIso() } as Book,
+          ],
+        })),
+      updateBook: (id, patch) => set((s) => ({ books: s.books.map((b) => (b.id === id ? { ...b, ...patch } : b)) })),
+      deleteBook: (id) => set((s) => ({ books: s.books.filter((b) => b.id !== id) })),
       clearBoughtItems: () => set((s) => ({ shopping: s.shopping.filter((i) => !i.done) })),
 
       setReview: (week, patch) =>

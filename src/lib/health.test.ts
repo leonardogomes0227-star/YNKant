@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { formatMl, mealsOfDay, totalKcal, waterPercent } from './health'
 import type { Meal } from '../types'
 
-const meal = (id: string, type: Meal['type'], kcal: number | null, date = '2026-10-27', createdAt = id): Meal => ({ id, date, type, note: id, kcal, createdAt })
+const meal = (id: string, type: Meal['type'], kcal: number | null, date = '2026-10-27', createdAt = id): Meal => ({ id, date, type, note: id, kcal, protein: null, carbs: null, fat: null, createdAt })
 
 describe('saúde', () => {
   it('formata água', () => {
